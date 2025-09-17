@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TriadGen V1.0 - Polytonal Piano Triads</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 30px;
+        }
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 30px;
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .hand-section {
+            background: #f7f9fc;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .hand-section h3 {
+            color: #764ba2;
+            margin-top: 0;
+        }
+        select, input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        #output {
+            background: #f7f9fc;
+            padding: 20px;
+            border-radius: 10px;
+            min-height: 200px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .chord-display {
+            font-size: 18px;
+            color: #667eea;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎹 TriadGen V1.0 - Polytonal Piano Triads</h1>
+        
+        <div class="controls">
+            <div class="hand-section">
+                <h3>Left Hand</h3>
+                <label>Root Note:
+                    <select id="lhRoot">
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+                        <option value="E">E</option>
+                        <option value="F">F</option>
+                        <option value="G">G</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                    </select>
+                </label>
+                <label>Mode:
+                    <select id="lhMode">
+                        <option value="ionian">Ionian (Major)</option>
+                        <option value="dorian" selected>Dorian</option>
+                        <option value="phrygian">Phrygian</option>
+                        <option value="lydian">Lydian</option>
+                        <option value="mixolydian">Mixolydian</option>
+                        <option value="aeolian">Aeolian (Minor)</option>
+                        <option value="locrian">Locrian</option>
+                    </select>
+                </label>
+                <label>Triad Type:
+                    <select id="lhTriad">
+                        <option value="major">Major</option>
+                        <option value="minor" selected>Minor</option>
+                        <option value="dim">Diminished</option>
+                        <option value="aug">Augmented</option>
+                        <option value="sus2">Sus2</option>
+                        <option value="sus4">Sus4</option>
+                    </select>
+                </label>
+            </div>
+            
+            <div class="hand-section">
+                <h3>Right Hand</h3>
+                <label>Root Note:
+                    <select id="rhRoot">
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+                        <option value="E">E</option>
+                        <option value="F" selected>F#</option>
+                        <option value="G">G</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                    </select>
+                </label>
+                <label>Mode:
+                    <select id="rhMode">
+                        <option value="ionian">Ionian (Major)</option>
+                        <option value="dorian">Dorian</option>
+                        <option value="phrygian">Phrygian</option>
+                        <option value="lydian">Lydian</option>
+                        <option value="mixolydian" selected>Mixolydian</option>
+                        <option value="aeolian">Aeolian (Minor)</option>
+                        <option value="locrian">Locrian</option>
+                    </select>
+                </label>
+                <label>Triad Type:
+                    <select id="rhTriad">
+                        <option value="major" selected>Major</option>
+                        <option value="minor">Minor</option>
+                        <option value="dim">Diminished</option>
+                        <option value="aug">Augmented</option>
+                        <option value="sus2">Sus2</option>
+                        <option value="sus4">Sus4</option>
+                    </select>
+                </label>
+            </div>
+        </div>
+        
+        <div style="text-align: center;">
+            <button onclick="generateTriads()">Generate Triads</button>
+            <button onclick="playTriads()">Play</button>
+            <button onclick="exportMIDI()">Export MIDI</button>
+            <button onclick="exportJSON()">Export JSON</button>
+        </div>
+        
+        <h3>Output:</h3>
+        <div id="output">Click "Generate Triads" to begin...</div>
+    </div>
+
+    <script>
+        let currentScore = null;
+        let audioContext = null;
+
+        function generateTriads() {
+            const lhRoot = document.getElementById('lhRoot').value;
+            const rhRoot = document.getElementById('rhRoot').value;
+            const lhTriadType = document.getElementById('lhTriad').value;
+            const rhTriadType = document.getElementById('rhTriad').value;
+            
+            currentScore = {
+                leftHand: {
+                    root: lhRoot + '2',
+                    type: lhTriadType,
+                    notes: buildTriad(lhRoot + '2', lhTriadType)
+                },
+                rightHand: {
+                    root: rhRoot + '5',
+                    type: rhTriadType,
+                    notes: buildTriad(rhRoot + '5', rhTriadType)
+                },
+                measures: []
+            };
+            
+            // Generate 8 measures
+            for (let i = 0; i < 8; i++) {
+                currentScore.measures.push({
+                    leftHand: currentScore.leftHand.notes,
+                    rightHand: currentScore.rightHand.notes,
+                    combined: analyzeCombo(currentScore.leftHand.notes, currentScore.rightHand.notes)
+                });
+            }
+            
+            displayScore();
+        }
+
+        function buildTriad(root, type) {
+            const noteToMidi = (note) => {
+                const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+                const match = note.match(/([A-G]#?)(\d+)/);
+                if (!match) return 60;
+                const noteIndex = notes.indexOf(match[1]);
+                const octave = parseInt(match[2]);
+                return (octave + 1) * 12 + noteIndex;
+            };
+            
+            const midiToNote = (midi) => {
+                const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+                const octave = Math.floor(midi / 12) - 1;
+                const noteIndex = midi % 12;
+                return notes[noteIndex] + octave;
+            };
+            
+            const intervals = {
+                major: [0, 4, 7],
+                minor: [0, 3, 7],
+                dim: [0, 3, 6],
+                aug: [0, 4, 8],
+                sus2: [0, 2, 7],
+                sus4: [0, 5, 7]
+            };
+            
+            const rootMidi = noteToMidi(root);
+            const pattern = intervals[type] || intervals.major;
+            
+            return pattern.map(interval => midiToNote(rootMidi + interval));
+        }
+
+        function analyzeCombo(lhNotes, rhNotes) {
+            const allNotes = [...lhNotes, ...rhNotes];
+            const noteSet = new Set(allNotes.map(n => n.replace(/\d+/, '')));
+            
+            if (noteSet.size === 4) return 'Extended Jazz Chord';
+            if (noteSet.size === 3) return 'Triad';
+            if (noteSet.size >= 5) return 'Complex Polytonal';
+            return 'Polytonal';
+        }
+
+        function displayScore() {
+            const output = document.getElementById('output');
+            let display = 'Generated 8 Measures of Polytonal Triads\n\n';
+            
+            currentScore.measures.forEach((measure, i) => {
+                display += `Measure ${i + 1}:\n`;
+                display += `  LH: ${measure.leftHand.join(', ')}\n`;
+                display += `  RH: ${measure.rightHand.join(', ')}\n`;
+                display += `  Combined: ${measure.combined}\n\n`;
+            });
+            
+            output.innerHTML = display;
+        }
+
+        function playTriads() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            
+            const noteToFreq = (note) => {
+                const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+                const match = note.match(/([A-G]#?)(\d+)/);
+                if (!match) return 440;
+                const noteIndex = notes.indexOf(match[1]);
+                const octave = parseInt(match[2]);
+                const midi = (octave + 1) * 12 + noteIndex;
+                return 440 * Math.pow(2, (midi - 69) / 12);
+            };
+            
+            if (currentScore) {
+                const playChord = (notes, time) => {
+                    notes.forEach(note => {
+                        const osc = audioContext.createOscillator();
+                        const gain = audioContext.createGain();
+                        osc.connect(gain);
+                        gain.connect(audioContext.destination);
+                        osc.frequency.value = noteToFreq(note);
+                        gain.gain.value = 0.1;
+                        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.5);
+                        osc.start(time);
+                        osc.stop(time + 0.5);
+                    });
+                };
+                
+                const allNotes = [
+                    ...currentScore.leftHand.notes,
+                    ...currentScore.rightHand.notes
+                ];
+                playChord(allNotes, audioContext.currentTime);
+            }
+        }
+
+        function exportMIDI() {
+            if (!currentScore) {
+                alert('Generate triads first!');
+                return;
+            }
+            
+            // Simple MIDI file creation
+            const midiData = [];
+            
+            // Header
+            midiData.push(...[0x4D, 0x54, 0x68, 0x64]); // MThd
+            midiData.push(...[0x00, 0x00, 0x00, 0x06]); // Header length
+            midiData.push(...[0x00, 0x01]); // Format 1
+            midiData.push(...[0x00, 0x02]); // 2 tracks
+            midiData.push(...[0x01, 0xE0]); // 480 ticks per quarter
+            
+            // Track 1 - Left Hand
+            const track1 = [];
+            track1.push(...[0x00, 0xFF, 0x51, 0x03, 0x07, 0xA1, 0x20]); // Tempo
+            track1.push(...[0x00, 0xFF, 0x2F, 0x00]); // End track
+            
+            midiData.push(...[0x4D, 0x54, 0x72, 0x6B]); // MTrk
+            midiData.push(...[0x00, 0x00, 0x00, track1.length]);
+            midiData.push(...track1);
+            
+            const blob = new Blob([new Uint8Array(midiData)], { type: 'audio/midi' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `triadgen-${Date.now()}.mid`;
+            a.click();
+        }
+
+        function exportJSON() {
+            if (!currentScore) {
+                alert('Generate triads first!');
+                return;
+            }
+            
+            const blob = new Blob([JSON.stringify(currentScore, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `triadgen-${Date.now()}.json`;
+            a.click();
+        }
+    </script>
+</body>
+</html>
