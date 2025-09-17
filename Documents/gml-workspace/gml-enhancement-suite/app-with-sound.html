@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Music App WITH SOUND!</title>
+    <style>
+        body { 
+            font-family: Arial; 
+            background: linear-gradient(135deg, #667eea, #764ba2); 
+            padding: 20px; 
+        }
+        .container { 
+            max-width: 600px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 15px; 
+        }
+        button { 
+            padding: 15px 30px; 
+            background: #667eea; 
+            color: white; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin: 5px; 
+            font-size: 18px;
+        }
+        button:hover {
+            background: #764ba2;
+        }
+        .status { 
+            background: #d4edda; 
+            color: #155724; 
+            padding: 10px; 
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 Music App WITH REAL SOUND!</h1>
+        <div class="status">✅ Click any button to play a note!</div>
+        
+        <h3>Play Individual Notes:</h3>
+        <button onclick="playNote(261.63)">C</button>
+        <button onclick="playNote(293.66)">D</button>
+        <button onclick="playNote(329.63)">E</button>
+        <button onclick="playNote(349.23)">F</button>
+        <button onclick="playNote(392.00)">G</button>
+        <button onclick="playNote(440.00)">A</button>
+        <button onclick="playNote(493.88)">B</button>
+        
+        <h3>Play Chords:</h3>
+        <button onclick="playChord([261.63, 329.63, 392.00])">C Major</button>
+        <button onclick="playChord([293.66, 369.99, 440.00])">D Major</button>
+        <button onclick="playChord([329.63, 415.30, 493.88])">E Major</button>
+        <button onclick="playChord([261.63, 311.13, 392.00])">C Minor</button>
+        
+        <h3>Play Melody:</h3>
+        <button onclick="playMelody()">Play "Mary Had a Little Lamb"</button>
+        <button onclick="playScale()">Play C Major Scale</button>
+    </div>
+    
+    <script>
+        // Create audio context
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // Play a single note
+        function playNote(frequency, duration = 500) {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = frequency;
+            oscillator.type = 'sine'; // Can be 'sine', 'square', 'sawtooth', 'triangle'
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration/1000);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration/1000);
+        }
+        
+        // Play a chord (multiple notes at once)
+        function playChord(frequencies, duration = 1000) {
+            frequencies.forEach(freq => {
+                playNote(freq, duration);
+            });
+        }
+        
+        // Play a melody (notes in sequence)
+        function playMelody() {
+            const melody = [
+                329.63, 293.66, 261.63, 293.66,
+                329.63, 329.63, 329.63, 0,
+                293.66, 293.66, 293.66, 0,
+                329.63, 392.00, 392.00, 0,
+                329.63, 293.66, 261.63, 293.66,
+                329.63, 329.63, 329.63, 329.63,
+                293.66, 293.66, 329.63, 293.66,
+                261.63
+            ];
+            
+            melody.forEach((note, index) => {
+                setTimeout(() => {
+                    if (note > 0) playNote(note, 400);
+                }, index * 300);
+            });
+        }
+        
+        // Play a scale
+        function playScale() {
+            const scale = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25];
+            
+            scale.forEach((note, index) => {
+                setTimeout(() => {
+                    playNote(note, 500);
+                }, index * 200);
+            });
+        }
+        
+        // Initialize on first click (browsers require user interaction for audio)
+        document.addEventListener('click', () => {
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        }, { once: true });
+    </script>
+</body>
+</html>

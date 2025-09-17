@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Music App</title>
+    <style>
+        body { 
+            font-family: Arial; 
+            background: linear-gradient(135deg, #667eea, #764ba2); 
+            padding: 20px; 
+        }
+        .container { 
+            max-width: 600px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 15px; 
+        }
+        button { 
+            padding: 10px 20px; 
+            background: #667eea; 
+            color: white; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin: 5px; 
+        }
+        .success { 
+            color: green; 
+            font-weight: bold; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 My First Music App</h1>
+        <p class="success" id="status"></p>
+        
+        <button onclick="playNote('C')">Play C</button>
+        <button onclick="playNote('E')">Play E</button>
+        <button onclick="playNote('G')">Play G</button>
+        
+        <h3>Generated Chords:</h3>
+        <div id="chords"></div>
+    </div>
+    
+    <script src="shared-libs/gml-template-system.js"></script>
+    <script src="shared-libs/gml-app-templates.js"></script>
+    <script src="shared-libs/gml-shared-memory.js"></script>
+    <script src="shared-libs/batch-operations.js"></script>
+    
+    <script>
+        // Initialize everything
+        const templateSystem = initializeAppTemplates('triadgen');
+        const memory = new GMLSharedMemory('myapp');
+        const batch = new BatchOperations();
+        
+        // Show status
+        document.getElementById('status').innerHTML = '✅ All systems loaded successfully!';
+        
+        // Simple chord generator
+        function generateChord() {
+            const notes = ['C', 'E', 'G'];
+            const chord = {
+                notes: notes,
+                time: new Date().toLocaleTimeString()
+            };
+            memory.save(chord);
+            return chord;
+        }
+        
+        // Generate 3 chords
+        const chords = batch.generate(3, generateChord);
+        document.getElementById('chords').innerHTML = chords.map(c => 
+            `<p>🎹 ${c.notes.join('-')} (${c.time})</p>`
+        ).join('');
+        
+        function playNote(note) {
+            console.log('Playing note:', note);
+            alert('Playing ' + note + '! (Add Web Audio API for real sound)');
+        }
+    </script>
+</body>
+</html>
