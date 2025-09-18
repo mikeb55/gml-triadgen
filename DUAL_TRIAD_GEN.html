@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dual TriadGen - Two Chord Shaper</title>
+    <style>
+        body { 
+            font-family: Arial; 
+            background: linear-gradient(135deg, #2a5298, #667eea); 
+            color: white; 
+            padding: 20px; 
+        }
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+        }
+        .triad-section {
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 10px 0;
+            display: inline-block;
+            width: 45%;
+            vertical-align: top;
+        }
+        .controls { 
+            text-align: center;
+            margin: 20px 0;
+        }
+        button { 
+            padding: 10px 20px; 
+            margin: 5px; 
+            cursor: pointer; 
+            font-size: 16px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            transform: scale(1.05);
+        }
+        select {
+            padding: 8px;
+            margin: 5px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        #output { 
+            background: rgba(0,0,0,0.5); 
+            padding: 20px; 
+            margin-top: 20px; 
+            border-radius: 10px;
+            text-align: center;
+        }
+        .chord-display {
+            display: inline-block;
+            margin: 10px;
+            padding: 15px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 8px;
+        }
+        h2 { text-align: center; }
+        h3 { color: #4CAF50; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="text-align: center;">🎹 Dual Triad Generator</h1>
+        
+        <div style="text-align: center;">
+            <div class="triad-section">
+                <h3>Triad 1</h3>
+                <label>Root Note:
+                    <select id="root1">
+                        <option value="48">C3</option>
+                        <option value="49">C#3</option>
+                        <option value="50">D3</option>
+                        <option value="51">D#3</option>
+                        <option value="52">E3</option>
+                        <option value="53">F3</option>
+                        <option value="54">F#3</option>
+                        <option value="55">G3</option>
+                        <option value="56">G#3</option>
+                        <option value="57">A3</option>
+                        <option value="58">A#3</option>
+                        <option value="59">B3</option>
+                        <option value="60" selected>C4</option>
+                        <option value="61">C#4</option>
+                        <option value="62">D4</option>
+                        <option value="63">D#4</option>
+                        <option value="64">E4</option>
+                        <option value="65">F4</option>
+                        <option value="66">F#4</option>
+                        <option value="67">G4</option>
+                        <option value="68">G#4</option>
+                        <option value="69">A4</option>
+                        <option value="70">A#4</option>
+                        <option value="71">B4</option>
+                        <option value="72">C5</option>
+                    </select>
+                </label>
+                <br>
+                <label>Triad Type:
+                    <select id="type1">
+                        <option value="0,4,7">Major</option>
+                        <option value="0,3,7">Minor</option>
+                        <option value="0,3,6">Diminished</option>
+                        <option value="0,4,8">Augmented</option>
+                        <option value="0,4,7,11">Major 7</option>
+                        <option value="0,3,7,10">Minor 7</option>
+                        <option value="0,4,7,10">Dominant 7</option>
+                        <option value="0,5,7">Suspended 4</option>
+                        <option value="0,2,7">Suspended 2</option>
+                        <option value="0,4,6">Italian 6th</option>
+                        <option value="0,4,6,10">French 6th</option>
+                        <option value="0,4,6,9">German 6th</option>
+                    </select>
+                </label>
+            </div>
+            
+            <div class="triad-section">
+                <h3>Triad 2</h3>
+                <label>Root Note:
+                    <select id="root2">
+                        <option value="48">C3</option>
+                        <option value="49">C#3</option>
+                        <option value="50">D3</option>
+                        <option value="51">D#3</option>
+                        <option value="52">E3</option>
+                        <option value="53">F3</option>
+                        <option value="54">F#3</option>
+                        <option value="55">G3</option>
+                        <option value="56">G#3</option>
+                        <option value="57">A3</option>
+                        <option value="58">A#3</option>
+                        <option value="59">B3</option>
+                        <option value="60">C4</option>
+                        <option value="61">C#4</option>
+                        <option value="62">D4</option>
+                        <option value="63">D#4</option>
+                        <option value="64">E4</option>
+                        <option value="65">F4</option>
+                        <option value="66">F#4</option>
+                        <option value="67" selected>G4</option>
+                        <option value="68">G#4</option>
+                        <option value="69">A4</option>
+                        <option value="70">A#4</option>
+                        <option value="71">B4</option>
+                        <option value="72">C5</option>
+                    </select>
+                </label>
+                <br>
+                <label>Triad Type:
+                    <select id="type2">
+                        <option value="0,4,7">Major</option>
+                        <option value="0,3,7">Minor</option>
+                        <option value="0,3,6">Diminished</option>
+                        <option value="0,4,8">Augmented</option>
+                        <option value="0,4,7,11">Major 7</option>
+                        <option value="0,3,7,10">Minor 7</option>
+                        <option value="0,4,7,10">Dominant 7</option>
+                        <option value="0,5,7">Suspended 4</option>
+                        <option value="0,2,7">Suspended 2</option>
+                        <option value="0,4,6">Italian 6th</option>
+                        <option value="0,4,6,10">French 6th</option>
+                        <option value="0,4,6,9">German 6th</option>
+                    </select>
+                </label>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button onclick="generate()">Generate Both</button>
+            <button onclick="playTriad1()">Play Triad 1</button>
+            <button onclick="playTriad2()">Play Triad 2</button>
+            <button onclick="playBoth()">Play Together</button>
+            <button onclick="playSequence()">Play Sequence</button>
+            <button onclick="downloadMIDI()">Export MIDI</button>
+            <button onclick="downloadMusicXML()">Export MusicXML</button>
+        </div>
+        
+        <div id="output"></div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/tone@14.7.77/build/Tone.js"></script>
+    <script>
+        let triad1 = [];
+        let triad2 = [];
+        const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        
+        function midiToNoteName(midi) {
+            const octave = Math.floor(midi / 12) - 1;
+            return noteNames[midi % 12] + octave;
+        }
+        
+        function generate() {
+            const root1 = parseInt(document.getElementById('root1').value);
+            const intervals1 = document.getElementById('type1').value.split(',').map(Number);
+            const type1 = document.getElementById('type1').selectedOptions[0].text;
+            
+            const root2 = parseInt(document.getElementById('root2').value);
+            const intervals2 = document.getElementById('type2').value.split(',').map(Number);
+            const type2 = document.getElementById('type2').selectedOptions[0].text;
+            
+            triad1 = intervals1.map(interval => root1 + interval);
+            triad2 = intervals2.map(interval => root2 + interval);
+            
+            document.getElementById('output').innerHTML = 
+                '<div class="chord-display">' +
+                '<h4>Triad 1: ' + type1 + '</h4>' +
+                '<p>' + triad1.map(midiToNoteName).join(' + ') + '</p>' +
+                '<p>MIDI: ' + triad1.join(', ') + '</p>' +
+                '</div>' +
+                '<div class="chord-display">' +
+                '<h4>Triad 2: ' + type2 + '</h4>' +
+                '<p>' + triad2.map(midiToNoteName).join(' + ') + '</p>' +
+                '<p>MIDI: ' + triad2.join(', ') + '</p>' +
+                '</div>';
+        }
+        
+        async function playTriad1() {
+            if (!triad1.length) { generate(); }
+            await Tone.start();
+            const synth = new Tone.PolySynth().toDestination();
+            synth.volume.value = -10;
+            const notes = triad1.map(n => Tone.Frequency(n, "midi"));
+            synth.triggerAttackRelease(notes, "2n");
+        }
+        
+        async function playTriad2() {
+            if (!triad2.length) { generate(); }
+            await Tone.start();
+            const synth = new Tone.PolySynth().toDestination();
+            synth.volume.value = -10;
+            const notes = triad2.map(n => Tone.Frequency(n, "midi"));
+            synth.triggerAttackRelease(notes, "2n");
+        }
+        
+        async function playBoth() {
+            if (!triad1.length || !triad2.length) { generate(); }
+            await Tone.start();
+            const synth = new Tone.PolySynth().toDestination();
+            synth.volume.value = -10;
+            const allNotes = [...triad1, ...triad2].map(n => Tone.Frequency(n, "midi"));
+            synth.triggerAttackRelease(allNotes, "2n");
+        }
+        
+        async function playSequence() {
+            if (!triad1.length || !triad2.length) { generate(); }
+            await Tone.start();
+            const synth = new Tone.PolySynth().toDestination();
+            synth.volume.value = -10;
+            
+            // Play triad 1 first
+            synth.triggerAttackRelease(
+                triad1.map(n => Tone.Frequency(n, "midi")), 
+                "4n", 
+                Tone.now()
+            );
+            
+            // Then triad 2
+            synth.triggerAttackRelease(
+                triad2.map(n => Tone.Frequency(n, "midi")), 
+                "4n", 
+                Tone.now() + 0.5
+            );
+        }
+        
+        function downloadMIDI() {
+            if (!triad1.length || !triad2.length) { generate(); }
+            
+            const header = [0x4D, 0x54, 0x68, 0x64, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, 0x00, 0x60];
+            const track = [];
+            
+            // Tempo
+            track.push(0x00, 0xFF, 0x51, 0x03, 0x07, 0xA1, 0x20);
+            
+            // Triad 1 - all notes on simultaneously
+            triad1.forEach((note, i) => {
+                track.push(i === 0 ? 0x00 : 0x00); // Delta 0 for chord
+                track.push(0x90, note, 0x50);
+            });
+            
+            // Triad 1 - all notes off
+            triad1.forEach((note, i) => {
+                track.push(i === 0 ? 0x60 : 0x00);
+                track.push(0x80, note, 0x00);
+            });
+            
+            // Triad 2 - all notes on
+            triad2.forEach((note, i) => {
+                track.push(i === 0 ? 0x00 : 0x00);
+                track.push(0x90, note, 0x50);
+            });
+            
+            // Triad 2 - all notes off
+            triad2.forEach((note, i) => {
+                track.push(i === 0 ? 0x60 : 0x00);
+                track.push(0x80, note, 0x00);
+            });
+            
+            // End of track
+            track.push(0x00, 0xFF, 0x2F, 0x00);
+            
+            const midi = [...header, 0x4D, 0x54, 0x72, 0x6B];
+            const trackLength = track.length;
+            midi.push((trackLength >> 24) & 0xFF, (trackLength >> 16) & 0xFF, 
+                     (trackLength >> 8) & 0xFF, trackLength & 0xFF);
+            midi.push(...track);
+            
+            const blob = new Blob([new Uint8Array(midi)], { type: 'audio/midi' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'dual_triads.mid';
+            a.click();
+        }
+        
+        function downloadMusicXML() {
+            if (!triad1.length || !triad2.length) { generate(); }
+            
+            let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+            xml += '<!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.1 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">\n';
+            xml += '<score-partwise version="3.1">\n';
+            xml += '  <work><work-title>Dual Triads</work-title></work>\n';
+            xml += '  <part-list><score-part id="P1"><part-name>Piano</part-name></score-part></part-list>\n';
+            xml += '  <part id="P1">\n';
+            
+            // Measure 1 - Triad 1
+            xml += '    <measure number="1">\n';
+            xml += '      <attributes>\n';
+            xml += '        <divisions>1</divisions>\n';
+            xml += '        <key><fifths>0</fifths></key>\n';
+            xml += '        <time><beats>4</beats><beat-type>4</beat-type></time>\n';
+            xml += '        <clef><sign>G</sign><line>2</line></clef>\n';
+            xml += '      </attributes>\n';
+            
+            triad1.forEach((note, i) => {
+                const noteName = noteNames[note % 12];
+                const octave = Math.floor(note / 12) - 1;
+                const step = noteName.charAt(0);
+                const hasSharp = noteName.includes('#');
+                
+                xml += '      <note>\n';
+                if (i > 0) xml += '        <chord/>\n';
+                xml += '        <pitch>\n';
+                xml += '          <step>' + step + '</step>\n';
+                if (hasSharp) xml += '          <alter>1</alter>\n';
+                xml += '          <octave>' + octave + '</octave>\n';
+                xml += '        </pitch>\n';
+                xml += '        <duration>4</duration>\n';
+                xml += '        <type>whole</type>\n';
+                xml += '      </note>\n';
+            });
+            
+            xml += '    </measure>\n';
+            
+            // Measure 2 - Triad 2
+            xml += '    <measure number="2">\n';
+            
+            triad2.forEach((note, i) => {
+                const noteName = noteNames[note % 12];
+                const octave = Math.floor(note / 12) - 1;
+                const step = noteName.charAt(0);
+                const hasSharp = noteName.includes('#');
+                
+                xml += '      <note>\n';
+                if (i > 0) xml += '        <chord/>\n';
+                xml += '        <pitch>\n';
+                xml += '          <step>' + step + '</step>\n';
+                if (hasSharp) xml += '          <alter>1</alter>\n';
+                xml += '          <octave>' + octave + '</octave>\n';
+                xml += '        </pitch>\n';
+                xml += '        <duration>4</duration>\n';
+                xml += '        <type>whole</type>\n';
+                xml += '      </note>\n';
+            });
+            
+            xml += '    </measure>\n';
+            xml += '  </part>\n';
+            xml += '</score-partwise>';
+            
+            const blob = new Blob([xml], { type: 'application/vnd.recordare.musicxml+xml' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'dual_triads.musicxml';
+            a.click();
+        }
+        
+        // Auto-generate on load
+        generate();
+    </script>
+</body>
+</html>

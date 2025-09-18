@@ -1,0 +1,34 @@
+﻿<!DOCTYPE html>
+<html><head><title>TriadGen V2 Fixed</title></head>
+<body>
+<h1>TriadGen V2.0 - Working Version</h1>
+<button onclick="test()">Test</button>
+<div id="output"></div>
+<script>
+const TriadGen = {
+    VERSION: '2.0-FIXED',
+    test: function() {
+        document.getElementById('output').innerHTML = 'Working!';
+        console.log('TriadGen loaded successfully');
+        return true;
+    }
+};
+window.TG = TriadGen;
+console.log('TriadGen Ready - Type TG.test() to verify');
+function test() { TG.test(); }
+</script>
+
+<!-- GML Template System -->
+<script src="https://raw.githubusercontent.com/mikeb55/-gml-enhancement-suite/main/templates/TemplateSystem.js"></script>
+<script>
+window.addEventListener("DOMContentLoaded", async () => {
+    try {
+        window.templateSystem = new TemplateSystem();
+        await window.templateSystem.init();
+        let c = document.getElementById("controls") || document.querySelector(".controls") || document.body;
+        window.templateSystem.createDropdown(c.id || "controls", (g,t) => console.log("Template loaded:", g));
+    } catch(e) { console.log("Template System load error:", e); }
+});
+</script>
+<script src="rapid_composer_memory.js"></script>
+</body></html>

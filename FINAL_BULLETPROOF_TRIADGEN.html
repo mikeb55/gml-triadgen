@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TriadGen - BULLETPROOF-9x3</title>
+    <style>
+        body { font-family: monospace; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { text-align: center; }
+        .controls { background: rgba(0,0,0,0.3); padding: 20px; border-radius: 10px; margin: 20px 0; }
+        button { background: #4CAF50; color: white; border: none; padding: 12px 24px; margin: 5px; cursor: pointer; font-size: 16px; border-radius: 5px; }
+        button:hover { transform: scale(1.05); }
+        #output { background: rgba(0,0,0,0.4); padding: 20px; border-radius: 10px; min-height: 200px; }
+        .triad { display: inline-block; margin: 10px; padding: 15px; background: rgba(255,255,255,0.2); border-radius: 8px; }
+        select, input { padding: 8px; margin: 5px; border-radius: 5px; border: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎹 TriadGen BULLETPROOF-9x3</h1>
+        <div id="status">✅ Ready</div>
+        
+        <div class="controls">
+            <select id="root">
+                <option value="60">C</option>
+                <option value="62">D</option>
+                <option value="64">E</option>
+                <option value="65">F</option>
+                <option value="67">G</option>
+                <option value="69">A</option>
+                <option value="71">B</option>
+            </select>
+            <select id="type">
+                <option value="major">Major</option>
+                <option value="minor">Minor</option>
+                <option value="dim">Diminished</option>
+                <option value="aug">Augmented</option>
+            </select>
+            <input type="number" id="count" value="4" min="1" max="16">
+            
+            <div style="margin-top:20px">
+                <button onclick="gen()">Generate</button>
+                <button onclick="play()">Play Chords</button>
+                <button onclick="stop()">Stop</button>
+                <button onclick="midi()">Export MIDI</button>
+                <button onclick="xml()">Export XML</button>
+                <button onclick="test()">Test All</button>
+            </div>
+        </div>
+        
+        <div id="output"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/tone@14.7.77/build/Tone.js"></script>
+    <script>
+        let T = [], S = null;
+        const I = {major:[0,4,7], minor:[0,3,7], dim:[0,3,6], aug:[0,4,8]};
+        const N = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+        
+        function gen() {
+            const r = +document.getElementById('root').value;
+            const t = document.getElementById('type').value;
+            const c = +document.getElementById('count').value;
+            T = [];
+            for(let i = 0; i < c; i++) {
+                T.push({notes: I[t].map(x => r + x + i*2), type: t});
+            }
+            let h = '<h3>Chords:</h3>';
+            T.forEach((t,i) => {
+                h += '<div class="triad">Chord ' + (i+1) + '<br>' + 
+                     t.notes.map(n => N[n%12] + ~~(n/12-1)).join(' + ') + '</div>';
+            });
+            document.getElementById('output').innerHTML = h;
+            document.getElementById('status').textContent = '✅ Generated';
+        }
+        
+        async function play() {
+            if(!T.length) return;
+            await Tone.start();
+            if(S) S.dispose();
+            S = new Tone.PolySynth().toDestination();
+            S.volume.value = -10;
+            T.forEach((t,i) => {
+                S.triggerAttackRelease(t.notes.map(n => Tone.Frequency(n, "midi")), "2n", "+" + (i*0.8));
+            });
+        }
+        
+        function stop() {
+            if(S) { S.releaseAll(); Tone.Transport.stop(); }
+        }
+        
+        function midi() {
+            if(!T.length) return;
+            const b = [77,84,104,100,0,0,0,6,0,1,0,1,1,224,77,84,114,107];
+            const t = [0,255,81,3,7,161,32];
+            let d = 0;
+            T.forEach(tr => {
+                tr.notes.forEach((n,i) => {
+                    t.push(...(i?[0]:[d]), 144, n, 80);
+                });
+                d = 240;
+                tr.notes.forEach((n,i) => {
+                    t.push(...(i?[0]:[d]), 128, n, 0);
+                });
+                d = 0;
+            });
+            t.push(0,255,47,0);
+            b.push((t.length>>24)&255, (t.length>>16)&255, (t.length>>8)&255, t.length&255, ...t);
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([new Uint8Array(b)], {type:'audio/midi'}));
+            a.download = 'chords.mid';
+            a.click();
+        }
+        
+        function xml() {
+            if(!T.length) return;
+            let x = '<?xml version="1.0"?><!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.1 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd"><score-partwise><part-list><score-part id="P1"><part-name>Piano</part-name></score-part></part-list><part id="P1">';
+            T.forEach((tr,m) => {
+                x += '<measure number="' + (m+1) + '">';
+                if(!m) x += '<attributes><divisions>1</divisions><key><fifths>0</fifths></key><time><beats>4</beats><beat-type>4</beat-type></time><clef><sign>G</sign><line>2</line></clef></attributes>';
+                tr.notes.forEach((n,i) => {
+                    x += '<note>';
+                    if(i) x += '<chord/>';
+                    x += '<pitch><step>' + N[n%12].replace('#','') + '</step>';
+                    if(N[n%12].includes('#')) x += '<alter>1</alter>';
+                    x += '<octave>' + ~~(n/12-1) + '</octave></pitch><duration>1</duration><type>quarter</type></note>';
+                });
+                x += '<note><rest/><duration>3</duration></note></measure>';
+            });
+            x += '</part></score-partwise>';
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([x], {type:'text/xml'}));
+            a.download = 'chords.xml';
+            a.click();
+        }
+        
+        function test() {
+            gen();
+            setTimeout(() => { play(); setTimeout(() => { stop(); midi(); xml(); }, 2000); }, 500);
+        }
+        
+        gen();
+    </script>
+</body>
+</html>

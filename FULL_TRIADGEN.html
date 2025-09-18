@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TriadGen - Full Featured</title>
+    <style>
+        body { 
+            font-family: Arial; 
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460); 
+            color: white; 
+            padding: 20px;
+            margin: 0;
+        }
+        .container { 
+            max-width: 1400px; 
+            margin: 0 auto; 
+        }
+        .section {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+        .triad-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .triad-box {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 8px;
+        }
+        button { 
+            padding: 10px 20px; 
+            margin: 5px; 
+            cursor: pointer; 
+            font-size: 14px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        select, input {
+            padding: 8px;
+            margin: 5px;
+            border-radius: 5px;
+            font-size: 14px;
+            width: 150px;
+        }
+        #output { 
+            background: rgba(0,0,0,0.5); 
+            padding: 20px; 
+            margin-top: 20px; 
+            border-radius: 10px;
+        }
+        .chord-display {
+            display: inline-block;
+            margin: 10px;
+            padding: 15px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 8px;
+            min-width: 200px;
+        }
+        h3 { color: #4CAF50; margin-top: 0; }
+        .button-group {
+            background: rgba(0,0,0,0.2);
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .status {
+            background: rgba(0,255,0,0.2);
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            margin: 10px 0;
+        }
+        label {
+            display: inline-block;
+            width: 100px;
+            text-align: right;
+            margin-right: 10px;
+        }
+        .progression-controls {
+            background: rgba(0,0,0,0.4);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="text-align: center;">🎹 TriadGen Professional - Full Featured</h1>
+        <div class="status" id="status">Ready</div>
+        
+        <div class="section">
+            <h3>Triad Configuration</h3>
+            <div class="triad-controls">
+                <div class="triad-box">
+                    <h4>Triad 1</h4>
+                    <div>
+                        <label>Root:</label>
+                        <select id="root1">
+                            <option value="36">C2</option>
+                            <option value="37">C#2</option>
+                            <option value="38">D2</option>
+                            <option value="39">D#2</option>
+                            <option value="40">E2</option>
+                            <option value="41">F2</option>
+                            <option value="42">F#2</option>
+                            <option value="43">G2</option>
+                            <option value="44">G#2</option>
+                            <option value="45">A2</option>
+                            <option value="46">A#2</option>
+                            <option value="47">B2</option>
+                            <option value="48">C3</option>
+                            <option value="49">C#3</option>
+                            <option value="50">D3</option>
+                            <option value="51">D#3</option>
+                            <option value="52">E3</option>
+                            <option value="53">F3</option>
+                            <option value="54">F#3</option>
+                            <option value="55">G3</option>
+                            <option value="56">G#3</option>
+                            <option value="57">A3</option>
+                            <option value="58">A#3</option>
+                            <option value="59">B3</option>
+                            <option value="60" selected>C4</option>
+                            <option value="61">C#4</option>
+                            <option value="62">D4</option>
+                            <option value="63">D#4</option>
+                            <option value="64">E4</option>
+                            <option value="65">F4</option>
+                            <option value="66">F#4</option>
+                            <option value="67">G4</option>
+                            <option value="68">G#4</option>
+                            <option value="69">A4</option>
+                            <option value="70">A#4</option>
+                            <option value="71">B4</option>
+                            <option value="72">C5</option>
+                            <option value="73">C#5</option>
+                            <option value="74">D5</option>
+                            <option value="75">D#5</option>
+                            <option value="76">E5</option>
+                            <option value="77">F5</option>
+                            <option value="78">F#5</option>
+                            <option value="79">G5</option>
+                            <option value="80">G#5</option>
+                            <option value="81">A5</option>
+                            <option value="82">A#5</option>
+                            <option value="83">B5</option>
+                            <option value="84">C6</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Type:</label>
+                        <select id="type1">
+                            <option value="0,4,7">Major</option>
+                            <option value="0,3,7">Minor</option>
+                            <option value="0,3,6">Diminished</option>
+                            <option value="0,4,8">Augmented</option>
+                            <option value="0,4,7,11">Major 7</option>
+                            <option value="0,3,7,10">Minor 7</option>
+                            <option value="0,4,7,10">Dominant 7</option>
+                            <option value="0,3,6,9">Diminished 7</option>
+                            <option value="0,3,7,11">Minor/Major 7</option>
+                            <option value="0,4,7,9">Major 6</option>
+                            <option value="0,3,7,9">Minor 6</option>
+                            <option value="0,5,7">Suspended 4</option>
+                            <option value="0,2,7">Suspended 2</option>
+                            <option value="0,4,7,11,14">Major 9</option>
+                            <option value="0,3,7,10,14">Minor 9</option>
+                            <option value="0,4,7,10,14">Dominant 9</option>
+                            <option value="0,4,7,11,14,17">Major 11</option>
+                            <option value="0,4,7,10,14,17">Dominant 11</option>
+                            <option value="0,4,7,11,14,17,21">Major 13</option>
+                            <option value="0,4,7,10,14,17,21">Dominant 13</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Inversion:</label>
+                        <select id="inversion1">
+                            <option value="0">Root Position</option>
+                            <option value="1">1st Inversion</option>
+                            <option value="2">2nd Inversion</option>
+                            <option value="3">3rd Inversion (7th chords)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="triad-box">
+                    <h4>Triad 2</h4>
+                    <div>
+                        <label>Root:</label>
+                        <select id="root2">
+                            <option value="36">C2</option>
+                            <option value="37">C#2</option>
+                            <option value="38">D2</option>
+                            <option value="39">D#2</option>
+                            <option value="40">E2</option>
+                            <option value="41">F2</option>
+                            <option value="42">F#2</option>
+                            <option value="43">G2</option>
+                            <option value="44">G#2</option>
+                            <option value="45">A2</option>
+                            <option value="46">A#2</option>
+                            <option value="47">B2</option>
+                            <option value="48">C3</option>
+                            <option value="49">C#3</option>
+                            <option value="50">D3</option>
+                            <option value="51">D#3</option>
+                            <option value="52">E3</option>
+                            <option value="53">F3</option>
+                            <option value="54">F#3</option>
+                            <option value="55">G3</option>
+                            <option value="56">G#3</option>
+                            <option value="57">A3</option>
+                            <option value="58">A#3</option>
+                            <option value="59">B3</option>
+                            <option value="60">C4</option>
+                            <option value="61">C#4</option>
+                            <option value="62">D4</option>
+                            <option value="63">D#4</option>
+                            <option value="64">E4</option>
+                            <option value="65">F4</option>
+                            <option value="66">F#4</option>
+                            <option value="67" selected>G4</option>
+                            <option value="68">G#4</option>
+                            <option value="69">A4</option>
+                            <option value="70">A#4</option>
+                            <option value="71">B4</option>
+                            <option value="72">C5</option>
+                            <option value="73">C#5</option>
+                            <option value="74">D5</option>
+                            <option value="75">D#5</option>
+                            <option value="76">E5</option>
+                            <option value="77">F5</option>
+                            <option value="78">F#5</option>
+                            <option value="79">G5</option>
+                            <option value="80">G#5</option>
+                            <option value="81">A5</option>
+                            <option value="82">A#5</option>
+                            <option value="83">B5</option>
+                            <option value="84">C6</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Type:</label>
+                        <select id="type2">
+                            <option value="0,4,7">Major</option>
+                            <option value="0,3,7">Minor</option>
+                            <option value="0,3,6">Diminished</option>
+                            <option value="0,4,8">Augmented</option>
+                            <option value="0,4,7,11">Major 7</option>
+                            <option value="0,3,7,10">Minor 7</option>
+                            <option value="0,4,7,10">Dominant 7</option>
+                            <option value="0,3,6,9">Diminished 7</option>
+                            <option value="0,3,7,11">Minor/Major 7</option>
+                            <option value="0,4,7,9">Major 6</option>
+                            <option value="0,3,7,9">Minor 6</option>
+                            <option value="0,5,7">Suspended 4</option>
+                            <option value="0,2,7">Suspended 2</option>
+                            <option value="0,4,7,11,14">Major 9</option>
+                            <option value="0,3,7,10,14">Minor 9</option>
+                            <option value="0,4,7,10,14">Dominant 9</option>
+                            <option value="0,4,7,11,14,17">Major 11</option>
+                            <option value="0,4,7,10,14,17">Dominant 11</option>
+                            <option value="0,4,7,11,14,17,21">Major 13</option>
+                            <option value="0,4,7,10,14,17,21">Dominant 13</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Inversion:</label>
+                        <select id="inversion2">
+                            <option value="0">Root Position</option>
+                            <option value="1">1st Inversion</option>
+                            <option value="2">2nd Inversion</option>
+                            <option value="3">3rd Inversion (7th chords)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h3>Playback Controls</h3>
+            <div class="button-group">
+                <button onclick="generate()">Generate Both</button>
+                <button onclick="playTriad1()">Play Triad 1</button>
+                <button onclick="playTriad2()">Play Triad 2</button>
+                <button onclick="playBoth()">Play Together</button>
+                <button onclick="playSequence()">Play Sequence</button>
+                <button onclick="playProgression()">Play as Progression</button>
+                <button onclick="stopAll()">Stop All</button>
+            </div>
+            
+            <div>
+                <label>Tempo:</label>
+                <input type="number" id="tempo" value="120" min="60" max="200">
+                <label>Volume:</label>
+                <input type="range" id="volume" value="-10" min="-30" max="0">
+            </div>
+        </div>
+        
+        <div class="section progression-controls">
+            <h3>Progression Builder</h3>
+            <button onclick="addToProgression(1)">Add Triad 1</button>
+            <button onclick="addToProgression(2)">Add Triad 2</button>
+            <button onclick="clearProgression()">Clear</button>
+            <button onclick="playBuiltProgression()">Play Progression</button>
+            <div id="progression-display"></div>
+        </div>
+        
+        <div class="section">
+            <h3>Export Options</h3>
+            <div class="button-group">
+                <button onclick="downloadMIDI()">Export MIDI</button>
+                <button onclick="downloadMusicXML()">Export MusicXML</button>
+                <button onclick="downloadJSON()">Export JSON</button>
+                <button onclick="copyToClipboard()">Copy to Clipboard</button>
+            </div>
+        </div>
+        
+        <div id="output"></div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/tone@14.7.77/build/Tone.js"></script>
+    <script>
+        let triad1 = [];
+        let triad2 = [];
+        let progression = [];
+        let synth = null;
+        const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        
+        function midiToNoteName(midi) {
+            const octave = Math.floor(midi / 12) - 1;
+            return noteNames[midi % 12] + octave;
+        }
+        
+        function applyInversion(notes, inversion) {
+            const inverted = [...notes];
+            for (let i = 0; i < inversion; i++) {
+                if (inverted.length > 0) {
+                    const note = inverted.shift();
+                    inverted.push(note + 12);
+                }
+            }
+            return inverted;
+        }
+        
+        function generate() {
+            const root1 = parseInt(document.getElementById('root1').value);
+            const intervals1 = document.getElementById('type1').value.split(',').map(Number);
+            const type1 = document.getElementById('type1').selectedOptions[0].text;
+            const inversion1 = parseInt(document.getElementById('inversion1').value);
+            
+            const root2 = parseInt(document.getElementById('root2').value);
+            const intervals2 = document.getElementById('type2').value.split(',').map(Number);
+            const type2 = document.getElementById('type2').selectedOptions[0].text;
+            const inversion2 = parseInt(document.getElementById('inversion2').value);
+            
+            let notes1 = intervals1.map(interval => root1 + interval);
+            let notes2 = intervals2.map(interval => root2 + interval);
+            
+            triad1 = applyInversion(notes1, inversion1);
+            triad2 = applyInversion(notes2, inversion2);
+            
+            updateStatus('Generated triads');
+            
+            document.getElementById('output').innerHTML = 
+                '<div class="chord-display">' +
+                '<h4>Triad 1: ' + type1 + '</h4>' +
+                '<p>Inversion: ' + ['Root', '1st', '2nd', '3rd'][inversion1] + '</p>' +
+                '<p>' + triad1.map(midiToNoteName).join(' + ') + '</p>' +
+                '<p>MIDI: ' + triad1.join(', ') + '</p>' +
+                '</div>' +
+                '<div class="chord-display">' +
+                '<h4>Triad 2: ' + type2 + '</h4>' +
+                '<p>Inversion: ' + ['Root', '1st', '2nd', '3rd'][inversion2] + '</p>' +
+                '<p>' + triad2.map(midiToNoteName).join(' + ') + '</p>' +
+                '<p>MIDI: ' + triad2.join(', ') + '</p>' +
+                '</div>';
+        }
+        
+        function updateStatus(msg) {
+            document.getElementById('status').textContent = msg;
+        }
+        
+        async function initSynth() {
+            await Tone.start();
+            if (synth) synth.dispose();
+            synth = new Tone.PolySynth().toDestination();
+            synth.volume.value = parseInt(document.getElementById('volume').value);
+        }
+        
+        async function playTriad1() {
+            if (!triad1.length) generate();
+            await initSynth();
+            synth.triggerAttackRelease(triad1.map(n => Tone.Frequency(n, "midi")), "2n");
+            updateStatus('Playing Triad 1');
+        }
+        
+        async function playTriad2() {
+            if (!triad2.length) generate();
+            await initSynth();
+            synth.triggerAttackRelease(triad2.map(n => Tone.Frequency(n, "midi")), "2n");
+            updateStatus('Playing Triad 2');
+        }
+        
+        async function playBoth() {
+            if (!triad1.length || !triad2.length) generate();
+            await initSynth();
+            const allNotes = [...triad1, ...triad2].map(n => Tone.Frequency(n, "midi"));
+            synth.triggerAttackRelease(allNotes, "2n");
+            updateStatus('Playing both triads together');
+        }
+        
+        async function playSequence() {
+            if (!triad1.length || !triad2.length) generate();
+            await initSynth();
+            const tempo = parseInt(document.getElementById('tempo').value);
+            const delay = 60 / tempo;
+            
+            synth.triggerAttackRelease(
+                triad1.map(n => Tone.Frequency(n, "midi")), 
+                "4n", 
+                Tone.now()
+            );
+            
+            synth.triggerAttackRelease(
+                triad2.map(n => Tone.Frequency(n, "midi")), 
+                "4n", 
+                Tone.now() + delay
+            );
+            updateStatus('Playing sequence');
+        }
+        
+        function stopAll() {
+            if (synth) {
+                synth.releaseAll();
+                Tone.Transport.stop();
+            }
+            updateStatus('Stopped');
+        }
+        
+        function addToProgression(triadNum) {
+            const triad = triadNum === 1 ? triad1 : triad2;
+            if (!triad.length) generate();
+            progression.push([...triad]);
+            updateProgressionDisplay();
+        }
+        
+        function clearProgression() {
+            progression = [];
+            updateProgressionDisplay();
+        }
+        
+        function updateProgressionDisplay() {
+            const display = progression.map((chord, i) => 
+                `${i+1}: ${chord.map(midiToNoteName).join('+')}`
+            ).join(' | ');
+            document.getElementById('progression-display').innerHTML = display || 'Empty';
+        }
+        
+        async function playBuiltProgression() {
+            if (!progression.length) return;
+            await initSynth();
+            const tempo = parseInt(document.getElementById('tempo').value);
+            const delay = 60 / tempo;
+            
+            progression.forEach((chord, i) => {
+                synth.triggerAttackRelease(
+                    chord.map(n => Tone.Frequency(n, "midi")),
+                    "4n",
+                    Tone.now() + (i * delay)
+                );
+            });
+            updateStatus('Playing progression');
+        }
+        
+        async function playProgression() {
+            await playSequence();
+        }
+        
+        function downloadMIDI() {
+            if (!triad1.length || !triad2.length) generate();
+            
+            const header = [0x4D, 0x54, 0x68, 0x64, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, 0x00, 0x60];
+            const track = [];
+            
+            track.push(0x00, 0xFF, 0x51, 0x03, 0x07, 0xA1, 0x20);
+            
+            const allChords = progression.length ? progression : [triad1, triad2];
+            
+            allChords.forEach((chord, chordIdx) => {
+                chord.forEach((note, noteIdx) => {
+                    track.push(noteIdx === 0 && chordIdx > 0 ? 0x60 : 0x00);
+                    track.push(0x90, note, 0x50);
+                });
+                
+                chord.forEach((note, noteIdx) => {
+                    track.push(noteIdx === 0 ? 0x60 : 0x00);
+                    track.push(0x80, note, 0x00);
+                });
+            });
+            
+            track.push(0x00, 0xFF, 0x2F, 0x00);
+            
+            const midi = [...header, 0x4D, 0x54, 0x72, 0x6B];
+            const trackLength = track.length;
+            midi.push((trackLength >> 24) & 0xFF, (trackLength >> 16) & 0xFF, 
+                     (trackLength >> 8) & 0xFF, trackLength & 0xFF);
+            midi.push(...track);
+            
+            const blob = new Blob([new Uint8Array(midi)], { type: 'audio/midi' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'triads.mid';
+            a.click();
+            updateStatus('MIDI exported');
+        }
+        
+        function downloadMusicXML() {
+            if (!triad1.length || !triad2.length) generate();
+            
+            let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+            xml += '<!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.1 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">\n';
+            xml += '<score-partwise version="3.1">\n';
+            xml += '  <work><work-title>Triads</work-title></work>\n';
+            xml += '  <part-list><score-part id="P1"><part-name>Piano</part-name></score-part></part-list>\n';
+            xml += '  <part id="P1">\n';
+            
+            const allChords = progression.length ? progression : [triad1, triad2];
+            
+            allChords.forEach((chord, measureNum) => {
+                xml += '    <measure number="' + (measureNum + 1) + '">\n';
+                
+                if (measureNum === 0) {
+                    xml += '      <attributes>\n';
+                    xml += '        <divisions>1</divisions>\n';
+                    xml += '        <key><fifths>0</fifths></key>\n';
+                    xml += '        <time><beats>4</beats><beat-type>4</beat-type></time>\n';
+                    xml += '        <clef><sign>G</sign><line>2</line></clef>\n';
+                    xml += '      </attributes>\n';
+                }
+                
+                chord.forEach((note, i) => {
+                    const noteName = noteNames[note % 12];
+                    const octave = Math.floor(note / 12) - 1;
+                    const step = noteName.charAt(0);
+                    const hasSharp = noteName.includes('#');
+                    
+                    xml += '      <note>\n';
+                    if (i > 0) xml += '        <chord/>\n';
+                    xml += '        <pitch>\n';
+                    xml += '          <step>' + step + '</step>\n';
+                    if (hasSharp) xml += '          <alter>1</alter>\n';
+                    xml += '          <octave>' + octave + '</octave>\n';
+                    xml += '        </pitch>\n';
+                    xml += '        <duration>4</duration>\n';
+                    xml += '        <type>whole</type>\n';
+                    xml += '      </note>\n';
+                });
+                
+                xml += '    </measure>\n';
+            });
+            
+            xml += '  </part>\n';
+            xml += '</score-partwise>';
+            
+            const blob = new Blob([xml], { type: 'application/vnd.recordare.musicxml+xml' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'triads.musicxml';
+            a.click();
+            updateStatus('MusicXML exported');
+        }
+        
+        function downloadJSON() {
+            const data = {
+                triad1: triad1,
+                triad2: triad2,
+                progression: progression,
+                settings: {
+                    tempo: document.getElementById('tempo').value,
+                    volume: document.getElementById('volume').value
+                }
+            };
+            
+            const json = JSON.stringify(data, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'triads.json';
+            a.click();
+            updateStatus('JSON exported');
+        }
+        
+        function copyToClipboard() {
+            const text = `Triad 1: ${triad1.map(midiToNoteName).join(', ')}\n` +
+                        `Triad 2: ${triad2.map(midiToNoteName).join(', ')}`;
+            navigator.clipboard.writeText(text);
+            updateStatus('Copied to clipboard');
+        }
+        
+        // Initialize on load
+        generate();
+        
+        // Volume control
+        document.getElementById('volume').addEventListener('input', (e) => {
+            if (synth) synth.volume.value = parseInt(e.target.value);
+        });
+        
+        // Save to memory system if available
+        if (window.RCM) {
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.key === 's') {
+                    e.preventDefault();
+                    window.RCM.save({
+                        triad1: triad1,
+                        triad2: triad2,
+                        progression: progression
+                    }, 'TriadGen');
+                    updateStatus('Saved to memory');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
