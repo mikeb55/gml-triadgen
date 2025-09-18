@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head><title>Recovery Test</title>
+<style>
+body{font-family:Arial;padding:20px}
+.test{padding:10px;margin:5px;border-radius:5px}
+.pass{background:#d4edda;color:#155724}
+.fail{background:#f8d7da;color:#721c24}
+</style>
+</head>
+<body>
+<h1>Recovery Verification Test</h1>
+<div id="results"></div>
+<script src="../shared-libs/gml-template-system.js"></script>
+<script src="../shared-libs/gml-app-templates.js"></script>
+<script src="../shared-libs/gml-shared-memory.js"></script>
+<script src="../shared-libs/batch-operations.js"></script>
+<script>
+const results = document.getElementById('results');
+let tests = [];
+// Test all systems
+tests.push({name:'Template System',pass:typeof GMLTemplateSystem!=='undefined'});
+tests.push({name:'App Templates',pass:typeof GMLAppTemplates!=='undefined'});
+tests.push({name:'Shared Memory',pass:typeof GMLSharedMemory!=='undefined'});
+tests.push({name:'Batch Operations',pass:typeof BatchOperations!=='undefined'});
+// Display
+tests.forEach(test=>{
+    const div = document.createElement('div');
+    div.className = `test ${test.pass?'pass':'fail'}`;
+    div.textContent = `${test.pass?'✓':'✗'} ${test.name}`;
+    results.appendChild(div);
+});
+const passed = tests.filter(t=>t.pass).length;
+results.innerHTML += `<h2>Score: ${passed}/${tests.length}</h2>`;
+</script>
+</body>
+</html>

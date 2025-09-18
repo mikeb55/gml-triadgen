@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Template System Test</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #f0f0f0; }
+        .success { color: green; font-size: 24px; font-weight: bold; }
+        .fail { color: red; font-size: 24px; font-weight: bold; }
+        .test { margin: 10px; padding: 10px; background: white; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Testing Template System</h1>
+    <div id="results"></div>
+    
+    <script src="shared-libs/gml-template-system.js"></script>
+    <script src="shared-libs/gml-app-templates.js"></script>
+    <script src="shared-libs/gml-shared-memory.js"></script>
+    <script src="shared-libs/batch-operations.js"></script>
+    <script>
+        const results = document.getElementById('results');
+        let allGood = true;
+        
+        // Test 1: Template System
+        if (typeof GMLTemplateSystem !== 'undefined') {
+            results.innerHTML += '<div class="test success">✅ Template System Loaded!</div>';
+        } else {
+            results.innerHTML += '<div class="test fail">❌ Template System Failed</div>';
+            allGood = false;
+        }
+        
+        // Test 2: App Templates
+        if (typeof GMLAppTemplates !== 'undefined') {
+            results.innerHTML += '<div class="test success">✅ App Templates Loaded!</div>';
+        } else {
+            results.innerHTML += '<div class="test fail">❌ App Templates Failed</div>';
+            allGood = false;
+        }
+        
+        // Test 3: Shared Memory
+        if (typeof GMLSharedMemory !== 'undefined') {
+            results.innerHTML += '<div class="test success">✅ Shared Memory Loaded!</div>';
+        } else {
+            results.innerHTML += '<div class="test fail">❌ Shared Memory Failed</div>';
+            allGood = false;
+        }
+        
+        // Test 4: Batch Operations
+        if (typeof BatchOperations !== 'undefined') {
+            results.innerHTML += '<div class="test success">✅ Batch Operations Loaded!</div>';
+        } else {
+            results.innerHTML += '<div class="test fail">❌ Batch Operations Failed</div>';
+            allGood = false;
+        }
+        
+        // Test 5: Can create instance
+        try {
+            const ts = new GMLTemplateSystem('test', { default: {} });
+            results.innerHTML += '<div class="test success">✅ Can Create Template Instance!</div>';
+        } catch(e) {
+            results.innerHTML += '<div class="test fail">❌ Cannot Create Instance: ' + e.message + '</div>';
+            allGood = false;
+        }
+        
+        // Final result
+        if (allGood) {
+            results.innerHTML += '<h2 class="success">🎉 ALL SYSTEMS OPERATIONAL!</h2>';
+        } else {
+            results.innerHTML += '<h2 class="fail">⚠️ Some issues detected</h2>';
+        }
+    </script>
+</body>
+</html>
