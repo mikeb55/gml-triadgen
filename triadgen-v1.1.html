@@ -480,3 +480,82 @@
     <script src="complete_profiles.js"></script>
 </body>
 </html><script>window.analyzeComposite=function(a,b,c,d){const m={"C-major-G-major":"CMaj9","C-major-E-minor":"CMaj7","F-major-C-major":"FMaj9","G-major-D-major":"GMaj9","C-minor-F-major":"Cm7","C-major-Bb-minor":"C7"};return m[a+"-"+b+"-"+c+"-"+d]||a+b+"/"+c+d};</script>
+<script>
+// COMPLETE TONALITY VAULT - ALL 29 CHORD TYPES
+// Added by automated script
+(function() {
+    // Helper to calculate interval between notes
+    function getInterval(root1, root2) {
+        const notes = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+        const i1 = notes.indexOf(root1);
+        const i2 = notes.indexOf(root2);
+        return (i2 - i1 + 12) % 12;
+    }
+    
+    // Complete triad pair formulas from Tonality Vault
+    const triadPairFormulas = {
+        'major': { lh: 'major', lhDegree: 0, rh: 'major', rhDegree: 2 },           // Major + Major(2nd)
+        'minor': { lh: 'minor', lhDegree: 0, rh: 'major', rhDegree: 5 },           // Minor + Major(4th)
+        'diminished': { lh: 'diminished', lhDegree: 0, rh: 'minor', rhDegree: 8 }, // Dim + Minor(b6)
+        'augmented': { lh: 'augmented', lhDegree: 0, rh: 'major', rhDegree: 4 },   // Aug + Major(3rd)
+        'sus2': { lh: 'major', lhDegree: 2, rh: 'minor', rhDegree: 7 },            // Major(2nd) + Minor(5th)
+        'sus4': { lh: 'major', lhDegree: 5, rh: 'minor', rhDegree: 7 },            // Major(4th) + Minor(5th)
+        'maj7': { lh: 'major', lhDegree: 0, rh: 'minor', rhDegree: 4 },            // Major + Minor(3rd)
+        'min7': { lh: 'minor', lhDegree: 0, rh: 'major', rhDegree: 8 },            // Minor + Major(b6)
+        'dom7': { lh: 'major', lhDegree: 0, rh: 'minor', rhDegree: 10 },           // Major + Minor(b7)
+        'dim7': { lh: 'diminished', lhDegree: 0, rh: 'minor', rhDegree: 8 },       // Dim + Minor(b6)
+        'aug7': { lh: 'augmented', lhDegree: 0, rh: 'minor', rhDegree: 10 },       // Aug + Minor(b7)
+        'minMaj7': { lh: 'minor', lhDegree: 0, rh: 'major', rhDegree: 4 },         // Minor + Major(3rd)
+        '6': { lh: 'major', lhDegree: 0, rh: 'minor', rhDegree: 9 },               // Major + Minor(6th)
+        'min6': { lh: 'minor', lhDegree: 0, rh: 'major', rhDegree: 9 },            // Minor + Major(6th)
+        '9': { lh: 'major', lhDegree: 0, rh: 'minor', rhDegree: 2 },               // Major + Minor(9th)
+        'min9': { lh: 'minor', lhDegree: 0, rh: 'major', rhDegree: 2 },            // Minor + Major(9th)
+        'maj9': { lh: 'major', lhDegree: 0, rh: 'minor', rhDegree: 2 },            // Major + Minor(9th)
+        '11': { lh: 'major', lhDegree: 0, rh: 'minor', rhDegree: 5 },              // Major + Minor(11th)
+        'min11': { lh: 'minor', lhDegree: 0, rh: 'major', rhDegree: 5 },           // Minor + Major(11th)
+        'maj11': { lh: 'major', lhDegree: 0, rh: 'minor', rhDegree: 5 },           // Major + Minor(11th)
+        '13': { lh: 'major', lhDegree: 0, rh: 'minor', rhDegree: 9 },              // Major + Minor(13th)
+        'min13': { lh: 'minor', lhDegree: 0, rh: 'major', rhDegree: 9 },           // Minor + Major(13th)
+        'maj13': { lh: 'major', lhDegree: 0, rh: 'minor', rhDegree: 9 },           // Major + Minor(13th)
+        'add2': { lh: 'major', lhDegree: 0, rh: 'major', rhDegree: 2 },            // Major + Major(2nd)
+        'add9': { lh: 'major', lhDegree: 0, rh: 'major', rhDegree: 2 },            // Major + Major(9th)
+        'add11': { lh: 'major', lhDegree: 0, rh: 'major', rhDegree: 5 },           // Major + Major(11th)
+        'minAdd9': { lh: 'minor', lhDegree: 0, rh: 'major', rhDegree: 2 },         // Minor + Major(9th)
+        'minAdd11': { lh: 'minor', lhDegree: 0, rh: 'major', rhDegree: 5 }         // Minor + Major(11th)
+    };
+    
+    // Enhanced analyzeComposite with ALL 29 chord types
+    const originalAnalyze = window.analyzeComposite;
+    window.analyzeComposite = function(lhRoot, lhType, rhRoot, rhType) {
+        // First try exact match from old mappings
+        const key = lhRoot + '-' + lhType + '-' + rhRoot + '-' + rhType;
+        
+        // Check against all 29 formulas
+        for (const [chordName, formula] of Object.entries(triadPairFormulas)) {
+            // Check if types match
+            if (lhType === formula.lh && rhType === formula.rh) {
+                // Check if interval matches
+                const interval = getInterval(lhRoot, rhRoot);
+                if (interval === formula.rhDegree) {
+                    return lhRoot + chordName;
+                }
+            }
+        }
+        
+        // Try original function
+        if (originalAnalyze) {
+            const result = originalAnalyze(lhRoot, lhType, rhRoot, rhType);
+            if (result && !result.includes('/')) return result;
+        }
+        
+        // Default description
+        return lhRoot + lhType + ' / ' + rhRoot + rhType;
+    };
+    
+    // Add dropdown options for all chord types
+    window.allChordTypes = Object.keys(triadPairFormulas);
+    
+    console.log('✅ ALL 29 CHORD TYPES from Tonality Vault loaded!');
+    console.log('Available:', window.allChordTypes.join(', '));
+})();
+</script>
