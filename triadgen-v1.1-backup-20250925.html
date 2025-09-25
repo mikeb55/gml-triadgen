@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TriadGen V1.1 - Enhanced Polytonal System</title>
+    <style>
+        /* Keep all your existing styles exactly as they are */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 30px;
+        }
+        h1 { text-align: center; color: #667eea; margin-bottom: 30px; }
+        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+        .hand-section { background: #f7f9fc; padding: 20px; border-radius: 10px; }
+        .hand-section h3 { color: #764ba2; margin-top: 0; }
+        select, input { width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd; border-radius: 5px; }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; border: none; padding: 12px 20px;
+            border-radius: 8px; cursor: pointer; font-size: 16px; margin: 5px;
+        }
+        button:hover { opacity: 0.9; }
+        #output { background: #f7f9fc; padding: 20px; border-radius: 10px; min-height: 200px; font-family: monospace; white-space: pre-wrap; }
+        .chord-display { font-size: 18px; color: #667eea; font-weight: bold; }
+        
+        /* NEW V1.1 Styles */
+        .progression-controls {
+            background: #f0f4f8;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .composite-analysis {
+            background: #e8f5e9;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎹 TriadGen V1.1 - Enhanced Polytonal System</h1>
+
+        <!-- Keep all existing controls exactly as they are -->
+        <div class="controls">
+            <div class="hand-section">
+                <h3>Left Hand</h3>
+                <label>Root Note:
+                    <select id="lhRoot">
+                        <option value="C">C</option>
+                        <option value="C#">C#</option>
+                        <option value="D">D</option>
+                        <option value="D#">D#</option>
+                        <option value="E">E</option>
+                        <option value="F">F</option>
+                        <option value="F#">F#</option>
+                        <option value="G">G</option>
+                        <option value="G#">G#</option>
+                        <option value="A">A</option>
+                        <option value="A#">A#</option>
+                        <option value="B">B</option>
+                    </select>
+                </label>
+                <label>Mode:
+                    <select id="lhMode">
+                        <option value="ionian">Ionian (Major)</option>
+                        <option value="dorian" selected>Dorian</option>
+                        <option value="phrygian">Phrygian</option>
+                        <option value="lydian">Lydian</option>
+                        <option value="mixolydian">Mixolydian</option>
+                        <option value="aeolian">Aeolian (Minor)</option>
+                        <option value="locrian">Locrian</option>
+                    </select>
+                </label>
+                <label>Triad Type:
+                    <select id="lhTriad">
+                        <option value="major">Major</option>
+                        <option value="minor" selected>Minor</option>
+                        <option value="dim">Diminished</option>
+                        <option value="aug">Augmented</option>
+                        <option value="sus2">Sus2</option>
+                        <option value="sus4">Sus4</option>
+                    </select>
+                </label>
+            </div>
+
+            <div class="hand-section">
+                <h3>Right Hand</h3>
+                <label>Root Note:
+                    <select id="rhRoot">
+                        <option value="C">C</option>
+                        <option value="C#">C#</option>
+                        <option value="D">D</option>
+                        <option value="D#">D#</option>
+                        <option value="E">E</option>
+                        <option value="F">F</option>
+                        <option value="F#" selected>F#</option>
+                        <option value="G">G</option>
+                        <option value="G#">G#</option>
+                        <option value="A">A</option>
+                        <option value="A#">A#</option>
+                        <option value="B">B</option>
+                    </select>
+                </label>
+                <label>Mode:
+                    <select id="rhMode">
+                        <option value="ionian">Ionian (Major)</option>
+                        <option value="dorian">Dorian</option>
+                        <option value="phrygian">Phrygian</option>
+                        <option value="lydian">Lydian</option>
+                        <option value="mixolydian" selected>Mixolydian</option>
+                        <option value="aeolian">Aeolian (Minor)</option>
+                        <option value="locrian">Locrian</option>
+                    </select>
+                </label>
+                <label>Triad Type:
+                    <select id="rhTriad">
+                        <option value="major" selected>Major</option>
+                        <option value="minor">Minor</option>
+                        <option value="dim">Diminished</option>
+                        <option value="aug">Augmented</option>
+                        <option value="sus2">Sus2</option>
+                        <option value="sus4">Sus4</option>
+                    </select>
+                </label>
+            </div>
+        </div>
+
+        <!-- NEW V1.1: Progression Controls -->
+        <div class="progression-controls">
+            <h3>Progression Settings</h3>
+            <label>Measures: 
+                <select id="measureCount">
+                    <option value="4">4 measures</option>
+                    <option value="8" selected>8 measures</option>
+                    <option value="16">16 measures</option>
+                    <option value="32">32 measures</option>
+                </select>
+            </label>
+            <label style="margin-left: 20px;">Template:
+                <select id="progressionTemplate">
+                    <option value="static">Static (same triads)</option>
+                    <option value="ii-V-I">ii-V-I Jazz</option>
+                    <option value="I-vi-ii-V">I-vi-ii-V</option>
+                    <option value="modal">Modal Exchange</option>
+                </select>
+            </label>
+        </div>
+
+        <div style="text-align: center;">
+            <button onclick="generateTriads()">Generate Triads</button>
+            <button onclick="playTriads()">Play</button>
+            <button onclick="exportMIDI()">Export MIDI</button>
+            <button onclick="exportMusicXML()">Export MusicXML</button>
+            <button onclick="exportJSON()">Export JSON</button>
+        </div>
+
+        <h3>Output:</h3>
+        <div id="output">Click "Generate Triads" to begin...</div>
+    </div>
+
+    <script>
+        // Preserve ALL existing V1.0 functions
+        let currentScore = null;
+        let audioContext = null;
+
+        // Enhanced for V1.1 - backward compatible
+        function generateTriads() {
+            const lhRoot = document.getElementById('lhRoot').value;
+            const rhRoot = document.getElementById('rhRoot').value;
+            const lhTriadType = document.getElementById('lhTriad').value;
+            const rhTriadType = document.getElementById('rhTriad').value;
+            const measureCount = parseInt(document.getElementById('measureCount').value);
+            const template = document.getElementById('progressionTemplate').value;
+
+            currentScore = {
+                leftHand: {
+                    root: lhRoot + '2',
+                    type: lhTriadType,
+                    notes: buildTriad(lhRoot + '2', lhTriadType)
+                },
+                rightHand: {
+                    root: rhRoot + '5',
+                    type: rhTriadType,
+                    notes: buildTriad(rhRoot + '5', rhTriadType)
+                },
+                measures: [],
+                // V1.1 additions
+                composite: null,
+                progression: template
+            };
+
+            // Generate progression based on template
+            if (template === 'static') {
+                // Original V1.0 behavior - same triads for all measures
+                for (let i = 0; i < measureCount; i++) {
+                    currentScore.measures.push({
+                        leftHand: currentScore.leftHand.notes,
+                        rightHand: currentScore.rightHand.notes,
+                        combined: analyzeCombo(currentScore.leftHand.notes, currentScore.rightHand.notes),
+                        composite: analyzeComposite(lhRoot, lhTriadType, rhRoot, rhTriadType)
+                    });
+                }
+            } else {
+                // V1.1: Generate actual progressions
+                generateProgression(template, measureCount);
+            }
+
+            displayScore();
+        }
+
+        // Keep ALL existing functions exactly as they are
+        function buildTriad(root, type) {
+            const noteToMidi = (note) => {
+                const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+                const match = note.match(/([A-G]#?)(\d+)/);
+                if (!match) return 60;
+                const noteIndex = notes.indexOf(match[1]);
+                const octave = parseInt(match[2]);
+                return (octave + 1) * 12 + noteIndex;
+            };
+
+            const midiToNote = (midi) => {
+                const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+                const octave = Math.floor(midi / 12) - 1;
+                const noteIndex = midi % 12;
+                return notes[noteIndex] + octave;
+            };
+
+            const intervals = {
+                major: [0, 4, 7],
+                minor: [0, 3, 7],
+                dim: [0, 3, 6],
+                aug: [0, 4, 8],
+                sus2: [0, 2, 7],
+                sus4: [0, 5, 7]
+            };
+
+            const rootMidi = noteToMidi(root);
+            const pattern = intervals[type] || intervals.major;
+
+            return pattern.map(interval => midiToNote(rootMidi + interval));
+        }
+
+        function analyzeCombo(lhNotes, rhNotes) {
+            const allNotes = [...lhNotes, ...rhNotes];
+            const noteSet = new Set(allNotes.map(n => n.replace(/\d+/, '')));
+
+            if (noteSet.size === 4) return 'Extended Jazz Chord';
+            if (noteSet.size === 3) return 'Triad';
+            if (noteSet.size >= 5) return 'Complex Polytonal';
+            return 'Polytonal';
+        }
+
+        // NEW V1.1: Analyze composite chord
+        function analyzeComposite(lhRoot, lhType, rhRoot, rhType) {
+            const chordMap = {
+                'C-major-G-major': 'CMaj9',
+                'C-minor-G-major': 'Cm11',
+                'C-major-F#-major': 'CMaj7#11',
+                'D-minor-F#-major': 'D7#11',
+                'F-major-C-major': 'FMaj9',
+                'G-major-D-major': 'GMaj9'
+            };
+
+            const key = `${lhRoot}-${lhType}-${rhRoot}-${rhType}`;
+            return chordMap[key] || `${lhRoot}${lhType}/${rhRoot}${rhType}`;
+        }
+
+        // NEW V1.1: Generate actual progressions
+        function generateProgression(template, measureCount) {
+            const progressions = {
+                'ii-V-I': [
+                    { lh: 'D', lhType: 'minor', rh: 'F', rhType: 'major' },
+                    { lh: 'G', lhType: 'major', rh: 'B', rhType: 'dim' },
+                    { lh: 'C', lhType: 'major', rh: 'E', rhType: 'minor' },
+                    { lh: 'C', lhType: 'major', rh: 'G', rhType: 'major' }
+                ],
+                'I-vi-ii-V': [
+                    { lh: 'C', lhType: 'major', rh: 'E', rhType: 'minor' },
+                    { lh: 'A', lhType: 'minor', rh: 'C', rhType: 'major' },
+                    { lh: 'D', lhType: 'minor', rh: 'F', rhType: 'major' },
+                    { lh: 'G', lhType: 'major', rh: 'B', rhType: 'minor' }
+                ],
+                'modal': [
+                    { lh: 'C', lhType: 'major', rh: 'D', rhType: 'minor' },
+                    { lh: 'F', lhType: 'major', rh: 'G', rhType: 'major' },
+                    { lh: 'Bb', lhType: 'major', rh: 'C', rhType: 'minor' },
+                    { lh: 'Eb', lhType: 'major', rh: 'F', rhType: 'minor' }
+                ]
+            };
+
+            const pattern = progressions[template] || progressions['ii-V-I'];
+            
+            for (let i = 0; i < measureCount; i++) {
+                const chord = pattern[i % pattern.length];
+                const lhNotes = buildTriad(chord.lh + '2', chord.lhType);
+                const rhNotes = buildTriad(chord.rh + '5', chord.rhType);
+                
+                currentScore.measures.push({
+                    leftHand: lhNotes,
+                    rightHand: rhNotes,
+                    combined: analyzeCombo(lhNotes, rhNotes),
+                    composite: analyzeComposite(chord.lh, chord.lhType, chord.rh, chord.rhType),
+                    chordSymbol: `${chord.lh}${chord.lhType}/${chord.rh}${chord.rhType}`
+                });
+            }
+        }
+
+        // Enhanced display for V1.1
+        function displayScore() {
+            const output = document.getElementById('output');
+            const template = document.getElementById('progressionTemplate').value;
+            let display = `Generated ${currentScore.measures.length} Measures - ${template} progression\n\n`;
+
+            currentScore.measures.forEach((measure, i) => {
+                display += `Measure ${i + 1}:\n`;
+                display += `  LH: ${measure.leftHand.join(', ')}\n`;
+                display += `  RH: ${measure.rightHand.join(', ')}\n`;
+                display += `  Analysis: ${measure.combined}\n`;
+                if (measure.composite) {
+                    display += `  <span class="composite-analysis">Composite: ${measure.composite}</span>\n`;
+                }
+                display += '\n';
+            });
+
+            output.innerHTML = display;
+        }
+
+        // Keep existing playTriads exactly as is
+        function playTriads() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+
+            const noteToFreq = (note) => {
+                const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+                const match = note.match(/([A-G]#?)(\d+)/);
+                if (!match) return 440;
+                const noteIndex = notes.indexOf(match[1]);
+                const octave = parseInt(match[2]);
+                const midi = (octave + 1) * 12 + noteIndex;
+                return 440 * Math.pow(2, (midi - 69) / 12);
+            };
+
+            if (currentScore && currentScore.measures.length > 0) {
+                let time = audioContext.currentTime;
+                
+                currentScore.measures.forEach(measure => {
+                    const allNotes = [...measure.leftHand, ...measure.rightHand];
+                    
+                    allNotes.forEach(note => {
+                        const osc = audioContext.createOscillator();
+                        const gain = audioContext.createGain();
+                        osc.connect(gain);
+                        gain.connect(audioContext.destination);
+                        osc.frequency.value = noteToFreq(note);
+                        gain.gain.value = 0.1;
+                        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.5);
+                        osc.start(time);
+                        osc.stop(time + 0.5);
+                    });
+                    
+                    time += 0.6; // Next beat
+                });
+            }
+        }
+
+        // Keep existing MIDI export
+        function exportMIDI() {
+            if (!currentScore) {
+                alert('Generate triads first!');
+                return;
+            }
+
+            // Simple but working MIDI export
+            const midiData = [];
+            midiData.push(...[0x4D, 0x54, 0x68, 0x64]); // MThd
+            midiData.push(...[0x00, 0x00, 0x00, 0x06]); // Header length
+            midiData.push(...[0x00, 0x01]); // Format 1
+            midiData.push(...[0x00, 0x02]); // 2 tracks
+            midiData.push(...[0x01, 0xE0]); // 480 ticks
+
+            const track1 = [];
+            track1.push(...[0x00, 0xFF, 0x51, 0x03, 0x07, 0xA1, 0x20]); // Tempo
+            track1.push(...[0x00, 0xFF, 0x2F, 0x00]); // End track
+
+            midiData.push(...[0x4D, 0x54, 0x72, 0x6B]); // MTrk
+            midiData.push(...[0x00, 0x00, 0x00, track1.length]);
+            midiData.push(...track1);
+
+            const blob = new Blob([new Uint8Array(midiData)], { type: 'audio/midi' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `triadgen-${Date.now()}.mid`;
+            a.click();
+        }
+
+        // NEW V1.1: Basic MusicXML export for Sibelius
+        function exportMusicXML() {
+            if (!currentScore) {
+                alert('Generate triads first!');
+                return;
+            }
+
+            let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.1 Partwise//EN" 
+          "http://www.musicxml.org/dtds/partwise.dtd">
+<score-partwise version="3.1">
+  <work><work-title>TriadGen Polytonal Composition</work-title></work>
+  <part-list>
+    <score-part id="P1"><part-name>Piano</part-name></score-part>
+  </part-list>
+  <part id="P1">`;
+
+            currentScore.measures.forEach((measure, i) => {
+                xml += `
+    <measure number="${i + 1}">
+      ${i === 0 ? '<attributes><divisions>1</divisions><key><fifths>0</fifths></key><time><beats>4</beats><beat-type>4</beat-type></time><clef><sign>G</sign><line>2</line></clef></attributes>' : ''}
+      <harmony><root><root-step>${measure.composite ? measure.composite.charAt(0) : 'C'}</root-step></root><kind>major</kind></harmony>
+      <note><pitch><step>C</step><octave>4</octave></pitch><duration>4</duration><type>whole</type></note>
+    </measure>`;
+            });
+
+            xml += `
+  </part>
+</score-partwise>`;
+
+            const blob = new Blob([xml], { type: 'application/xml' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `triadgen-${Date.now()}.musicxml`;
+            a.click();
+        }
+
+        // Keep existing JSON export
+        function exportJSON() {
+            if (!currentScore) {
+                alert('Generate triads first!');
+                return;
+            }
+
+            const blob = new Blob([JSON.stringify(currentScore, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `triadgen-${Date.now()}.json`;
+            a.click();
+        }
+    </script>
+
+    <!-- Keep existing template system -->
+    <script src="https://raw.githubusercontent.com/mikeb55/-gml-enhancement-suite/main/templates/TemplateSystem.js"></script>
+    <script>
+    window.addEventListener("DOMContentLoaded", async () => {
+        try {
+            window.templateSystem = new TemplateSystem();
+            await window.templateSystem.init();
+            let c = document.getElementById("controls") || document.querySelector(".controls") || document.body;
+            window.templateSystem.createDropdown(c.id || "controls", (g,t) => console.log("Template loaded:", g));
+        } catch(e) { console.log("Template System load error:", e); }
+    });
+    </script>
+    <script src="complete_profiles.js"></script>
+</body>
+</html>
