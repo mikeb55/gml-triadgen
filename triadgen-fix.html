@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>TriadGen - Working MusicXML Export</title>
+<style>
+body { font-family: Arial; max-width: 800px; margin: 50px auto; padding: 20px; background: #f0f0f0; }
+.box { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+button { background: #4CAF50; color: white; padding: 15px 30px; border: none; border-radius: 5px; cursor: pointer; font-size: 18px; margin: 10px; }
+button:hover { background: #45a049; }
+.output { background: #f9f9f9; border: 1px solid #ddd; padding: 15px; margin: 20px 0; border-radius: 5px; }
+pre { background: #272822; color: #f8f8f2; padding: 15px; border-radius: 5px; overflow-x: auto; }
+</style>
+</head>
+<body>
+
+<div class="box">
+    <h1>TriadGen - Fixed MusicXML Export</h1>
+    <p>This version generates ACTUAL chord notes, not just C notes!</p>
+    
+    <button onclick="generateAndDownload()">Generate Real Chords → Download MusicXML</button>
+    
+    <div class="output">
+        <h3>Output Preview:</h3>
+        <pre id="preview">Click button to generate...</pre>
+    </div>
+</div>
+
+<script>
+function generateAndDownload() {
+    // The chord progression from your file
+    const progression = [
+        { root: 'C', type: 'major' },
+        { root: 'F', type: 'major' },
+        { root: 'B', type: 'major' },
+        { root: 'E', type: 'major' },
+        { root: 'C', type: 'major' },
+        { root: 'F', type: 'major' },
+        { root: 'B', type: 'major' },
+        { root: 'E', type: 'major' }
+    ];
+    
+    // Generate MusicXML with ACTUAL NOTES
+    const xml = generateRealMusicXML(progression);
+    
+    // Show preview
+    const preview = document.getElementById('preview');
+    preview.textContent = 'Generated MusicXML with real chord notes:\n';
+    progression.forEach((chord, i) => {
+        const notes = getChordNotes(chord.root, chord.type);
+        preview.textContent += `Measure ${i+1}: ${chord.root} ${chord.type} = ${notes.join(', ')}\n`;
+    });
+    
+    // Download file
+    const blob = new Blob([xml], { type: 'application/xml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `TriadGen-Fixed-${Date.now()}.musicxml`;
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    preview.textContent += '\n✅ File downloaded! Open in Sibelius to see the actual chords.';
+}
+
+function getChordNotes(root, type) {
+    const noteMap = {
+        'C': 0, 'C#': 1, 'D': 2, 'D#': 3, 'E': 4, 'F': 5,
+        'F#': 6, 'G': 7, 'G#': 8, 'A': 9, 'A#': 10, 'B': 11
+    };
+    const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    
+    const rootNum = noteMap[root];
+    const intervals = type === 'major' ? [0, 4, 7] : [0, 3, 7]; // major or minor triad
+    
+    return intervals.map(interval => {
+        const noteNum = (rootNum + interval) % 12;
+        return noteNames[noteNum];
+    });
+}
+
+function generateRealMusicXML(progression) {
+    let xml = `<?xml version="1.0" encoding='UTF-8' standalone='no' ?>
+<!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.0 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">
+<score-partwise version="3.0">
+ <work>
+  <work-title>TriadGen - With Actual Chords</work-title>
+ </work>
+ <identification>
+  <encoding>
+   <encoding-date>${new Date().toISOString().split('T')[0]}</encoding-date>
+   <software>TriadGen Fixed Export</software>
+  </encoding>
+ </identification>
+ <defaults>
+  <scaling>
+   <millimeters>215.9</millimeters>
+   <tenths>1233</tenths>
+  </scaling>
+ </defaults>
+ <part-list>
+  <score-part id="P1">
+   <part-name>Piano</part-name>
+  </score-part>
+ </part-list>
+ <part id="P1">`;
+    
+    progression.forEach((chord, measureNum) => {
+        const notes = getChordNotes(chord.root, chord.type);
+        
+        xml += `
+  <measure number="${measureNum + 1}">`;
+        
+        if (measureNum === 0) {
+            xml += `
+   <attributes>
+    <divisions>256</divisions>
+    <key>
+     <fifths>0</fifths>
+    </key>
+    <time>
+     <beats>4</beats>
+     <beat-type>4</beat-type>
+    </time>
+    <staves>2</staves>
+    <clef number="1">
+     <sign>G</sign>
+     <line>2</line>
+    </clef>
+    <clef number="2">
+     <sign>F</sign>
+     <line>4</line>
+    </clef>
+   </attributes>`;
+        }
+        
+        // Add chord symbol
+        xml += `
+   <harmony>
+    <root>
+     <root-step>${chord.root}</root-step>
+    </root>
+    <kind>${chord.type}</kind>
+   </harmony>`;
+        
+        // RIGHT HAND - Add the actual chord notes (not just C!)
+        notes.forEach((note, i) => {
+            const isSharp = note.includes('#');
+            const step = note.replace('#', '');
+            
+            if (i === 0) {
+                // First note - no chord tag
+                xml += `
+   <note>
+    <pitch>
+     <step>${step}</step>${isSharp ? '\n     <alter>1</alter>' : ''}
+     <octave>4</octave>
+    </pitch>
+    <duration>1024</duration>
+    <type>whole</type>
+    <staff>1</staff>
+   </note>`;
+            } else {
+                // Additional notes in chord
+                xml += `
+   <note>
+    <chord/>
+    <pitch>
+     <step>${step}</step>${isSharp ? '\n     <alter>1</alter>' : ''}
+     <octave>${i === 2 ? '5' : '4'}</octave>
+    </pitch>
+    <duration>1024</duration>
+    <type>whole</type>
+    <staff>1</staff>
+   </note>`;
+            }
+        });
+        
+        // LEFT HAND - Add bass note (root)
+        xml += `
+   <backup>
+    <duration>1024</duration>
+   </backup>
+   <note>
+    <pitch>
+     <step>${chord.root}</step>${chord.root.includes('#') ? '\n     <alter>1</alter>' : ''}
+     <octave>2</octave>
+    </pitch>
+    <duration>1024</duration>
+    <type>whole</type>
+    <staff>2</staff>
+   </note>`;
+        
+        // Add fifth in bass
+        const fifth = notes[2];
+        const fifthIsSharp = fifth.includes('#');
+        xml += `
+   <note>
+    <chord/>
+    <pitch>
+     <step>${fifth.replace('#', '')}</step>${fifthIsSharp ? '\n     <alter>1</alter>' : ''}
+     <octave>3</octave>
+    </pitch>
+    <duration>1024</duration>
+    <type>whole</type>
+    <staff>2</staff>
+   </note>`;
+        
+        xml += `
+  </measure>`;
+    });
+    
+    xml += `
+ </part>
+</score-partwise>`;
+    
+    return xml;
+}
+</script>
+
+</body>
+</html>
