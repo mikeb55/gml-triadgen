@@ -1,0 +1,932 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polyrhythmic TriadGen v8.2 - Complete Edition</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .version {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        .section h3 {
+            color: #4a5568;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            color: #555;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        input[type="number"], select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        #output {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+        }
+        .rhythm-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(30px, 1fr));
+            gap: 2px;
+            margin-top: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+        }
+        .beat {
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            transition: background 0.3s;
+        }
+        .beat.active {
+            background: #667eea;
+        }
+        .export-options {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0f4f8;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 Polyrhythmic TriadGen 🎵</h1>
+        <div class="version">Version 8.2 - Complete Edition</div>
+
+        <!-- Section A -->
+        <div class="section">
+            <h3>
+                <input type="checkbox" id="enableA" checked>
+                Section A - Primary Pattern
+            </h3>
+            <div class="section-controls">
+                <div class="control-group">
+                    <label>Triad Root:</label>
+                    <select id="rootA">
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+                        <option value="E">E</option>
+                        <option value="F">F</option>
+                        <option value="G">G</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Triad Type:</label>
+                    <select id="typeA">
+                        <option value="major">Major</option>
+                        <option value="minor">Minor</option>
+                        <option value="diminished">Diminished</option>
+                        <option value="augmented">Augmented</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Rhythm Pattern:</label>
+                    <select id="rhythmA">
+                        <option value="quarters">Quarter Notes</option>
+                        <option value="eighths">Eighth Notes</option>
+                        <option value="sixteenths">Sixteenth Notes</option>
+                        <option value="triplets">Triplets (3:2)</option>
+                        <option value="polyrhythm">Polyrhythm</option>
+                    </select>
+                </div>
+                <div class="control-group" id="polyrhythmGroupA" style="display:none;">
+                    <label>Polyrhythm Type:</label>
+                    <select id="polyrhythmA">
+                        <option value="3:2">3:2</option>
+                        <option value="5:4">5:4</option>
+                        <option value="7:4">7:4</option>
+                        <option value="9:4">9:4</option>
+                        <option value="11:4">11:4</option>
+                        <option value="13:4">13:4</option>
+                        <option value="17:4">17:4</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Number of Measures:</label>
+                    <input type="number" id="measuresA" min="1" max="8" value="4">
+                </div>
+            </div>
+            <div id="gridA" class="rhythm-grid"></div>
+        </div>
+
+        <!-- Section B -->
+        <div class="section">
+            <h3>
+                <input type="checkbox" id="enableB" checked>
+                Section B - Secondary Pattern
+            </h3>
+            <div class="section-controls">
+                <div class="control-group">
+                    <label>Triad Root:</label>
+                    <select id="rootB">
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+                        <option value="E">E</option>
+                        <option value="F">F</option>
+                        <option value="G" selected>G</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Triad Type:</label>
+                    <select id="typeB">
+                        <option value="major">Major</option>
+                        <option value="minor" selected>Minor</option>
+                        <option value="diminished">Diminished</option>
+                        <option value="augmented">Augmented</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Rhythm Pattern:</label>
+                    <select id="rhythmB">
+                        <option value="quarters">Quarter Notes</option>
+                        <option value="eighths">Eighth Notes</option>
+                        <option value="sixteenths">Sixteenth Notes</option>
+                        <option value="triplets">Triplets (3:2)</option>
+                        <option value="polyrhythm" selected>Polyrhythm</option>
+                    </select>
+                </div>
+                <div class="control-group" id="polyrhythmGroupB">
+                    <label>Polyrhythm Type:</label>
+                    <select id="polyrhythmB">
+                        <option value="3:2">3:2</option>
+                        <option value="5:4" selected>5:4</option>
+                        <option value="7:4">7:4</option>
+                        <option value="9:4">9:4</option>
+                        <option value="11:4">11:4</option>
+                        <option value="13:4">13:4</option>
+                        <option value="17:4">17:4</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Number of Measures:</label>
+                    <input type="number" id="measuresB" min="1" max="8" value="4">
+                </div>
+            </div>
+            <div id="gridB" class="rhythm-grid"></div>
+        </div>
+
+        <!-- Section C -->
+        <div class="section">
+            <h3>
+                <input type="checkbox" id="enableC">
+                Section C - Closing Pattern
+            </h3>
+            <div class="section-controls">
+                <div class="control-group">
+                    <label>Triad Root:</label>
+                    <select id="rootC">
+                        <option value="C" selected>C</option>
+                        <option value="D">D</option>
+                        <option value="E">E</option>
+                        <option value="F">F</option>
+                        <option value="G">G</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Triad Type:</label>
+                    <select id="typeC">
+                        <option value="major" selected>Major</option>
+                        <option value="minor">Minor</option>
+                        <option value="diminished">Diminished</option>
+                        <option value="augmented">Augmented</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Rhythm Pattern:</label>
+                    <select id="rhythmC">
+                        <option value="whole">Whole Notes</option>
+                        <option value="halves" selected>Half Notes</option>
+                        <option value="quarters">Quarter Notes</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Number of Measures:</label>
+                    <input type="number" id="measuresC" min="1" max="4" value="2">
+                </div>
+            </div>
+            <div id="gridC" class="rhythm-grid"></div>
+        </div>
+
+        <div class="export-options">
+            <h3>Export Options</h3>
+            <div class="section-controls">
+                <div class="control-group">
+                    <label>Export Format:</label>
+                    <select id="exportFormat">
+                        <option value="quintet">String Quintet (Guitar + Quartet)</option>
+                        <option value="quartet">String Quartet</option>
+                        <option value="gcc">GCC Composer (Single Voice)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button onclick="generateComposition()">Generate Composition</button>
+            <button onclick="exportComposition()">Export MusicXML</button>
+            <button onclick="clearOutput()">Clear</button>
+        </div>
+
+        <div id="output"></div>
+    </div>
+
+    <script>
+        // Initialize event listeners
+        document.getElementById('rhythmA').addEventListener('change', function() {
+            document.getElementById('polyrhythmGroupA').style.display = 
+                this.value === 'polyrhythm' ? 'block' : 'none';
+            updateRhythmGrid('A');
+        });
+
+        document.getElementById('rhythmB').addEventListener('change', function() {
+            document.getElementById('polyrhythmGroupB').style.display = 
+                this.value === 'polyrhythm' ? 'block' : 'none';
+            updateRhythmGrid('B');
+        });
+
+        document.getElementById('rhythmC').addEventListener('change', function() {
+            updateRhythmGrid('C');
+        });
+
+        // Triad generation functions
+        function generateTriad(root, type) {
+            const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+            const rootIndex = notes.indexOf(root);
+            
+            const intervals = {
+                'major': [0, 4, 7],
+                'minor': [0, 3, 7],
+                'diminished': [0, 3, 6],
+                'augmented': [0, 4, 8]
+            };
+            
+            return intervals[type].map(interval => 
+                notes[(rootIndex + interval) % 12]
+            );
+        }
+
+        function generateRhythmPattern(type, polyrhythm, measures) {
+            const pattern = [];
+            const divisions = 256; // Sibelius standard
+            const measureDuration = divisions * 4; // 1024 for 4/4 time
+            
+            for (let m = 0; m < measures; m++) {
+                switch(type) {
+                    case 'quarters':
+                        // 4 quarter notes per measure
+                        for (let i = 0; i < 4; i++) {
+                            pattern.push({duration: 256, type: 'quarter'});
+                        }
+                        break;
+                    
+                    case 'eighths':
+                        // 8 eighth notes per measure
+                        for (let i = 0; i < 8; i++) {
+                            pattern.push({duration: 128, type: 'eighth'});
+                        }
+                        break;
+                    
+                    case 'sixteenths':
+                        // 16 sixteenth notes per measure
+                        for (let i = 0; i < 16; i++) {
+                            pattern.push({duration: 64, type: '16th'});
+                        }
+                        break;
+                    
+                    case 'triplets':
+                        // Two groups of triplets per measure (6 notes total)
+                        for (let group = 0; group < 2; group++) {
+                            for (let i = 0; i < 3; i++) {
+                                pattern.push({
+                                    duration: i < 2 ? 171 : 170, // 171+171+170 = 512
+                                    type: 'eighth',
+                                    tuplet: '3:2',
+                                    actualNotes: 3,
+                                    normalNotes: 2,
+                                    tupletGroup: group,
+                                    tupletIndex: i
+                                });
+                            }
+                        }
+                        break;
+                    
+                    case 'polyrhythm':
+                        const [num, denom] = polyrhythm.split(':').map(Number);
+                        // Two groups per measure to fill it completely
+                        for (let group = 0; group < 2; group++) {
+                            const groupDuration = 512; // Each group fills half measure
+                            const baseDuration = Math.floor(groupDuration / num);
+                            const remainder = groupDuration - (baseDuration * num);
+                            
+                            for (let i = 0; i < num; i++) {
+                                const extraDuration = i < remainder ? 1 : 0;
+                                pattern.push({
+                                    duration: baseDuration + extraDuration,
+                                    type: 'eighth',
+                                    tuplet: polyrhythm,
+                                    actualNotes: num,
+                                    normalNotes: denom / 2, // Adjusted for half-measure
+                                    tupletGroup: group,
+                                    tupletIndex: i
+                                });
+                            }
+                        }
+                        break;
+                    
+                    case 'whole':
+                        pattern.push({duration: 1024, type: 'whole'});
+                        break;
+                    
+                    case 'halves':
+                        pattern.push({duration: 512, type: 'half'});
+                        pattern.push({duration: 512, type: 'half'});
+                        break;
+                }
+            }
+            
+            return pattern;
+        }
+
+        function updateRhythmGrid(section) {
+            const grid = document.getElementById('grid' + section);
+            const rhythm = document.getElementById('rhythm' + section).value;
+            const measures = parseInt(document.getElementById('measures' + section).value);
+            
+            let beatsPerMeasure = 4;
+            if (rhythm === 'eighths') beatsPerMeasure = 8;
+            if (rhythm === 'sixteenths') beatsPerMeasure = 16;
+            if (rhythm === 'triplets') beatsPerMeasure = 6;
+            if (rhythm === 'polyrhythm') {
+                const poly = document.getElementById('polyrhythm' + section).value;
+                beatsPerMeasure = parseInt(poly.split(':')[0]) * 2; // Two groups per measure
+            }
+            
+            grid.innerHTML = '';
+            for (let m = 0; m < measures; m++) {
+                for (let b = 0; b < beatsPerMeasure; b++) {
+                    const beat = document.createElement('div');
+                    beat.className = 'beat active';
+                    grid.appendChild(beat);
+                }
+            }
+        }
+
+        function generateComposition() {
+            const output = document.getElementById('output');
+            let composition = [];
+            let totalMeasures = 0;
+            
+            // Section A
+            if (document.getElementById('enableA').checked) {
+                const rootA = document.getElementById('rootA').value;
+                const typeA = document.getElementById('typeA').value;
+                const rhythmA = document.getElementById('rhythmA').value;
+                const polyrhythmA = document.getElementById('polyrhythmA').value;
+                const measuresA = parseInt(document.getElementById('measuresA').value);
+                
+                const triadA = generateTriad(rootA, typeA);
+                const patternA = generateRhythmPattern(rhythmA, polyrhythmA, measuresA);
+                
+                composition.push({
+                    section: 'A',
+                    triad: triadA,
+                    pattern: patternA,
+                    measures: measuresA,
+                    startMeasure: totalMeasures + 1
+                });
+                totalMeasures += measuresA;
+            }
+            
+            // Section B
+            if (document.getElementById('enableB').checked) {
+                const rootB = document.getElementById('rootB').value;
+                const typeB = document.getElementById('typeB').value;
+                const rhythmB = document.getElementById('rhythmB').value;
+                const polyrhythmB = document.getElementById('polyrhythmB').value;
+                const measuresB = parseInt(document.getElementById('measuresB').value);
+                
+                const triadB = generateTriad(rootB, typeB);
+                const patternB = generateRhythmPattern(rhythmB, polyrhythmB, measuresB);
+                
+                composition.push({
+                    section: 'B',
+                    triad: triadB,
+                    pattern: patternB,
+                    measures: measuresB,
+                    startMeasure: totalMeasures + 1
+                });
+                totalMeasures += measuresB;
+            }
+            
+            // Section C
+            if (document.getElementById('enableC').checked) {
+                const rootC = document.getElementById('rootC').value;
+                const typeC = document.getElementById('typeC').value;
+                const rhythmC = document.getElementById('rhythmC').value;
+                const measuresC = parseInt(document.getElementById('measuresC').value);
+                
+                const triadC = generateTriad(rootC, typeC);
+                const patternC = generateRhythmPattern(rhythmC, '', measuresC);
+                
+                composition.push({
+                    section: 'C',
+                    triad: triadC,
+                    pattern: patternC,
+                    measures: measuresC,
+                    startMeasure: totalMeasures + 1
+                });
+                totalMeasures += measuresC;
+            }
+            
+            // Store composition globally
+            window.currentComposition = composition;
+            
+            // Display output
+            output.textContent = 'Composition Generated!\n\n';
+            composition.forEach(section => {
+                output.textContent += `Section ${section.section}: ${section.triad.join('-')} (${section.measures} measures)\n`;
+                output.textContent += `Pattern: ${section.pattern.length} notes\n\n`;
+            });
+            output.textContent += `Total Measures: ${totalMeasures}`;
+        }
+
+        function exportComposition() {
+            if (!window.currentComposition) {
+                alert('Please generate a composition first!');
+                return;
+            }
+            
+            const format = document.getElementById('exportFormat').value;
+            
+            switch(format) {
+                case 'quintet':
+                    exportStringQuintet();
+                    break;
+                case 'quartet':
+                    exportStringQuartet();
+                    break;
+                case 'gcc':
+                    exportGCC();
+                    break;
+            }
+        }
+
+        function exportStringQuintet() {
+            // Generate MusicXML for String Quintet: Guitar, Violin I, Violin II, Viola, Cello
+            let xml = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n';
+            xml += '<!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.0 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">\n';
+            xml += '<score-partwise version="3.0">\n';
+            xml += '  <work><work-title>String Quintet Composition</work-title></work>\n';
+            xml += '  <identification>\n';
+            xml += '    <encoding>\n';
+            xml += '      <software>TriadGen v8.2</software>\n';
+            xml += '      <encoding-date>' + new Date().toISOString().split('T')[0] + '</encoding-date>\n';
+            xml += '    </encoding>\n';
+            xml += '  </identification>\n';
+            
+            // Part list
+            xml += '  <part-list>\n';
+            xml += '    <score-part id="P1"><part-name>Classical Guitar</part-name></score-part>\n';
+            xml += '    <score-part id="P2"><part-name>Violin I</part-name></score-part>\n';
+            xml += '    <score-part id="P3"><part-name>Violin II</part-name></score-part>\n';
+            xml += '    <score-part id="P4"><part-name>Viola</part-name></score-part>\n';
+            xml += '    <score-part id="P5"><part-name>Violoncello</part-name></score-part>\n';
+            xml += '  </part-list>\n';
+            
+            // Generate parts - distribute triad notes across instruments
+            const instruments = ['P1', 'P2', 'P3', 'P4', 'P5'];
+            const clefs = [
+                {sign: 'G', line: 2, octave: 3}, // Guitar (sounds octave lower)
+                {sign: 'G', line: 2, octave: 4}, // Violin I
+                {sign: 'G', line: 2, octave: 4}, // Violin II
+                {sign: 'C', line: 3, octave: 3}, // Viola
+                {sign: 'F', line: 4, octave: 2}  // Cello
+            ];
+            
+            instruments.forEach((partId, idx) => {
+                xml += `  <part id="${partId}">\n`;
+                let measureNum = 1;
+                
+                window.currentComposition.forEach(section => {
+                    const octave = clefs[idx].octave;
+                    
+                    for (let m = 0; m < section.measures; m++) {
+                        xml += `    <measure number="${measureNum}">\n`;
+                        
+                        if (measureNum === 1) {
+                            xml += '      <attributes>\n';
+                            xml += '        <divisions>256</divisions>\n';
+                            xml += '        <key><fifths>0</fifths></key>\n';
+                            xml += '        <time><beats>4</beats><beat-type>4</beat-type></time>\n';
+                            xml += `        <clef><sign>${clefs[idx].sign}</sign><line>${clefs[idx].line}</line></clef>\n`;
+                            xml += '      </attributes>\n';
+                        }
+                        
+                        // Add notes for this measure
+                        let measureDuration = 0;
+                        const notesInMeasure = Math.floor(section.pattern.length / section.measures);
+                        const startIdx = m * notesInMeasure;
+                        let tupletOpen = false;
+                        let currentTupletGroup = -1;
+                        
+                        for (let i = startIdx; i < startIdx + notesInMeasure && i < section.pattern.length; i++) {
+                            const rhythm = section.pattern[i];
+                            
+                            // Cycle through the triad notes for each instrument in different patterns
+                            let note;
+                            if (idx === 0) {
+                                // Guitar - plays root predominantly with occasional thirds
+                                note = section.triad[i % 3 === 2 ? 1 : 0];
+                            } else if (idx === 1) {
+                                // Violin I - melodic line cycling through all triad notes
+                                note = section.triad[i % 3];
+                            } else if (idx === 2) {
+                                // Violin II - harmonic support, alternates third and fifth
+                                note = section.triad[(i % 2) + 1];
+                            } else if (idx === 3) {
+                                // Viola - rhythmic pattern on root and fifth
+                                note = section.triad[i % 2 === 0 ? 0 : 2];
+                            } else {
+                                // Cello - bass line, mostly root with occasional fifth
+                                note = section.triad[i % 4 === 3 ? 2 : 0];
+                            }
+                            
+                            xml += '      <note>\n';
+                            xml += '        <pitch>\n';
+                            xml += `          <step>${note.replace('#', '')}</step>\n`;
+                            if (note.includes('#')) {
+                                xml += '          <alter>1</alter>\n';
+                            }
+                            xml += `          <octave>${octave}</octave>\n`;
+                            xml += '        </pitch>\n';
+                            xml += `        <duration>${rhythm.duration}</duration>\n`;
+                            xml += '        <voice>1</voice>\n';
+                            xml += `        <type>${rhythm.type}</type>\n`;
+                            
+                            // Handle tuplets
+                            if (rhythm.tuplet) {
+                                xml += '        <time-modification>\n';
+                                xml += `          <actual-notes>${rhythm.actualNotes}</actual-notes>\n`;
+                                xml += `          <normal-notes>${rhythm.normalNotes}</normal-notes>\n`;
+                                xml += '        </time-modification>\n';
+                                
+                                // Start new tuplet group
+                                if (rhythm.tupletGroup !== currentTupletGroup) {
+                                    if (tupletOpen) {
+                                        // Close previous tuplet
+                                        xml += '        <notations>\n';
+                                        xml += '          <tuplet type="stop"/>\n';
+                                        xml += '        </notations>\n';
+                                    }
+                                    xml += '        <notations>\n';
+                                    xml += '          <tuplet type="start" bracket="yes"/>\n';
+                                    xml += '        </notations>\n';
+                                    tupletOpen = true;
+                                    currentTupletGroup = rhythm.tupletGroup;
+                                } else if (rhythm.tupletIndex === rhythm.actualNotes - 1) {
+                                    // Last note in tuplet group
+                                    xml += '        <notations>\n';
+                                    xml += '          <tuplet type="stop"/>\n';
+                                    xml += '        </notations>\n';
+                                    tupletOpen = false;
+                                    currentTupletGroup = -1;
+                                }
+                            }
+                            
+                            xml += '      </note>\n';
+                            measureDuration += rhythm.duration;
+                        }
+                        
+                        xml += '    </measure>\n';
+                        measureNum++;
+                    }
+                });
+                
+                xml += `  </part>\n`;
+            });
+            
+            xml += '</score-partwise>\n';
+            downloadFile('string_quintet.musicxml', xml);
+        }
+
+        function exportStringQuartet() {
+            // Generate MusicXML for String Quartet: Violin I, Violin II, Viola, Cello
+            let xml = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n';
+            xml += '<!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.0 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">\n';
+            xml += '<score-partwise version="3.0">\n';
+            xml += '  <work><work-title>String Quartet Composition</work-title></work>\n';
+            xml += '  <identification>\n';
+            xml += '    <encoding>\n';
+            xml += '      <software>TriadGen v8.2</software>\n';
+            xml += '      <encoding-date>' + new Date().toISOString().split('T')[0] + '</encoding-date>\n';
+            xml += '    </encoding>\n';
+            xml += '  </identification>\n';
+            
+            // Part list
+            xml += '  <part-list>\n';
+            xml += '    <score-part id="P1"><part-name>Violin I</part-name></score-part>\n';
+            xml += '    <score-part id="P2"><part-name>Violin II</part-name></score-part>\n';
+            xml += '    <score-part id="P3"><part-name>Viola</part-name></score-part>\n';
+            xml += '    <score-part id="P4"><part-name>Violoncello</part-name></score-part>\n';
+            xml += '  </part-list>\n';
+            
+            // Generate parts
+            const instruments = ['P1', 'P2', 'P3', 'P4'];
+            const clefs = [
+                {sign: 'G', line: 2, octave: 4}, // Violin I
+                {sign: 'G', line: 2, octave: 4}, // Violin II  
+                {sign: 'C', line: 3, octave: 3}, // Viola
+                {sign: 'F', line: 4, octave: 2}  // Cello
+            ];
+            
+            instruments.forEach((partId, idx) => {
+                xml += `  <part id="${partId}">\n`;
+                let measureNum = 1;
+                
+                window.currentComposition.forEach(section => {
+                    // Distribute triad voices
+                    let noteIndex;
+                    if (idx === 0) noteIndex = 2; // Violin I - fifth
+                    else if (idx === 1) noteIndex = 1; // Violin II - third
+                    else if (idx === 2) noteIndex = 0; // Viola - root
+                    else noteIndex = 0; // Cello - root (octave lower)
+                    
+                    const note = section.triad[noteIndex % section.triad.length];
+                    const octave = clefs[idx].octave;
+                    
+                    for (let m = 0; m < section.measures; m++) {
+                        xml += `    <measure number="${measureNum}">\n`;
+                        
+                        if (measureNum === 1) {
+                            xml += '      <attributes>\n';
+                            xml += '        <divisions>256</divisions>\n';
+                            xml += '        <key><fifths>0</fifths></key>\n';
+                            xml += '        <time><beats>4</beats><beat-type>4</beat-type></time>\n';
+                            xml += `        <clef><sign>${clefs[idx].sign}</sign><line>${clefs[idx].line}</line></clef>\n`;
+                            xml += '      </attributes>\n';
+                        }
+                        
+                        // Add notes for this measure
+                        const notesInMeasure = Math.floor(section.pattern.length / section.measures);
+                        const startIdx = m * notesInMeasure;
+                        let tupletOpen = false;
+                        let currentTupletGroup = -1;
+                        
+                        for (let i = startIdx; i < startIdx + notesInMeasure && i < section.pattern.length; i++) {
+                            const rhythm = section.pattern[i];
+                            
+                            xml += '      <note>\n';
+                            xml += '        <pitch>\n';
+                            xml += `          <step>${note.replace('#', '')}</step>\n`;
+                            if (note.includes('#')) {
+                                xml += '          <alter>1</alter>\n';
+                            }
+                            xml += `          <octave>${octave}</octave>\n`;
+                            xml += '        </pitch>\n';
+                            xml += `        <duration>${rhythm.duration}</duration>\n`;
+                            xml += '        <voice>1</voice>\n';
+                            xml += `        <type>${rhythm.type}</type>\n`;
+                            
+                            // Handle tuplets
+                            if (rhythm.tuplet) {
+                                xml += '        <time-modification>\n';
+                                xml += `          <actual-notes>${rhythm.actualNotes}</actual-notes>\n`;
+                                xml += `          <normal-notes>${rhythm.normalNotes}</normal-notes>\n`;
+                                xml += '        </time-modification>\n';
+                                
+                                if (rhythm.tupletGroup !== currentTupletGroup) {
+                                    if (tupletOpen) {
+                                        xml += '        <notations>\n';
+                                        xml += '          <tuplet type="stop"/>\n';
+                                        xml += '        </notations>\n';
+                                    }
+                                    xml += '        <notations>\n';
+                                    xml += '          <tuplet type="start" bracket="yes"/>\n';
+                                    xml += '        </notations>\n';
+                                    tupletOpen = true;
+                                    currentTupletGroup = rhythm.tupletGroup;
+                                } else if (rhythm.tupletIndex === rhythm.actualNotes - 1) {
+                                    xml += '        <notations>\n';
+                                    xml += '          <tuplet type="stop"/>\n';
+                                    xml += '        </notations>\n';
+                                    tupletOpen = false;
+                                    currentTupletGroup = -1;
+                                }
+                            }
+                            
+                            xml += '      </note>\n';
+                        }
+                        
+                        xml += '    </measure>\n';
+                        measureNum++;
+                    }
+                });
+                
+                xml += `  </part>\n`;
+            });
+            
+            xml += '</score-partwise>\n';
+            downloadFile('string_quartet.musicxml', xml);
+        }
+
+        function exportGCC() {
+            // Single voice MusicXML for GCC Composer
+            let xml = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n';
+            xml += '<!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.0 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">\n';
+            xml += '<score-partwise version="3.0">\n';
+            xml += '  <work><work-title>GCC Composition</work-title></work>\n';
+            xml += '  <identification>\n';
+            xml += '    <encoding>\n';
+            xml += '      <software>TriadGen v8.2</software>\n';
+            xml += '      <encoding-date>' + new Date().toISOString().split('T')[0] + '</encoding-date>\n';
+            xml += '    </encoding>\n';
+            xml += '  </identification>\n';
+            xml += '  <part-list>\n';
+            xml += '    <score-part id="P1"><part-name>Instrument</part-name></score-part>\n';
+            xml += '  </part-list>\n';
+            xml += '  <part id="P1">\n';
+            
+            let measureNum = 1;
+            
+            window.currentComposition.forEach(section => {
+                for (let m = 0; m < section.measures; m++) {
+                    xml += `    <measure number="${measureNum}">\n`;
+                    
+                    if (measureNum === 1) {
+                        xml += '      <attributes>\n';
+                        xml += '        <divisions>256</divisions>\n';
+                        xml += '        <key><fifths>0</fifths></key>\n';
+                        xml += '        <time><beats>4</beats><beat-type>4</beat-type></time>\n';
+                        xml += '        <clef><sign>G</sign><line>2</line></clef>\n';
+                        xml += '      </attributes>\n';
+                    }
+                    
+                    // Cycle through triad notes with rhythm pattern
+                    const notesInMeasure = Math.floor(section.pattern.length / section.measures);
+                    const startIdx = m * notesInMeasure;
+                    let tupletOpen = false;
+                    let currentTupletGroup = -1;
+                    
+                    for (let i = startIdx; i < startIdx + notesInMeasure && i < section.pattern.length; i++) {
+                        const rhythm = section.pattern[i];
+                        const note = section.triad[i % section.triad.length];
+                        
+                        xml += '      <note>\n';
+                        xml += '        <pitch>\n';
+                        xml += `          <step>${note.replace('#', '')}</step>\n`;
+                        if (note.includes('#')) {
+                            xml += '          <alter>1</alter>\n';
+                        }
+                        xml += '          <octave>4</octave>\n';
+                        xml += '        </pitch>\n';
+                        xml += `        <duration>${rhythm.duration}</duration>\n`;
+                        xml += '        <voice>1</voice>\n';
+                        xml += `        <type>${rhythm.type}</type>\n`;
+                        
+                        if (rhythm.tuplet) {
+                            xml += '        <time-modification>\n';
+                            xml += `          <actual-notes>${rhythm.actualNotes}</actual-notes>\n`;
+                            xml += `          <normal-notes>${rhythm.normalNotes}</normal-notes>\n`;
+                            xml += '        </time-modification>\n';
+                            
+                            if (rhythm.tupletGroup !== currentTupletGroup) {
+                                if (tupletOpen) {
+                                    xml += '        <notations>\n';
+                                    xml += '          <tuplet type="stop"/>\n';
+                                    xml += '        </notations>\n';
+                                }
+                                xml += '        <notations>\n';
+                                xml += '          <tuplet type="start" bracket="yes"/>\n';
+                                xml += '        </notations>\n';
+                                tupletOpen = true;
+                                currentTupletGroup = rhythm.tupletGroup;
+                            } else if (rhythm.tupletIndex === rhythm.actualNotes - 1) {
+                                xml += '        <notations>\n';
+                                xml += '          <tuplet type="stop"/>\n';
+                                xml += '        </notations>\n';
+                                tupletOpen = false;
+                                currentTupletGroup = -1;
+                            }
+                        }
+                        
+                        xml += '      </note>\n';
+                    }
+                    
+                    xml += '    </measure>\n';
+                    measureNum++;
+                }
+            });
+            
+            xml += '  </part>\n';
+            xml += '</score-partwise>\n';
+            downloadFile('gcc_composition.musicxml', xml);
+        }
+
+        function downloadFile(filename, content) {
+            const blob = new Blob([content], { type: 'text/xml' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function clearOutput() {
+            document.getElementById('output').textContent = '';
+            window.currentComposition = null;
+        }
+
+        // Initialize grids
+        updateRhythmGrid('A');
+        updateRhythmGrid('B');
+        updateRhythmGrid('C');
+    </script>
+</body>
+</html>
