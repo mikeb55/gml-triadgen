@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polyrhythmic TriadGen v8.4 - Integrated Chord Viewer</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            color: #fff;
+            text-align: center;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(100, 200, 255, 0.5);
+        }
+        .version {
+            text-align: center;
+            color: #64b5f6;
+            margin-bottom: 30px;
+        }
+        
+        /* Tab System */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid rgba(100, 200, 255, 0.3);
+        }
+        .tab {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 10px 10px 0 0;
+            color: #e0e0e0;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        .tab:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Fixed select styling for dark theme */
+        select, input[type="number"], button {
+            padding: 10px;
+            background: rgba(30, 30, 40, 0.9);
+            border: 1px solid rgba(100, 200, 255, 0.3);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        select option {
+            background: #1a1a2e;
+            color: #fff;
+        }
+        
+        select:hover, input[type="number"]:hover {
+            background: rgba(40, 40, 55, 0.95);
+            border-color: #64b5f6;
+        }
+        
+        select:focus, input[type="number"]:focus {
+            outline: none;
+            border-color: #764ba2;
+            box-shadow: 0 0 10px rgba(118, 75, 162, 0.3);
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        /* Main grid layouts */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .harmonic-unit {
+            border: 2px solid rgba(100, 200, 255, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+        }
+        
+        .harmonic-unit h2 {
+            margin-top: 0;
+            color: #64b5f6;
+            text-align: center;
+            border-bottom: 2px solid rgba(100, 200, 255, 0.2);
+            padding-bottom: 10px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.02);
+        }
+        
+        .section h3 {
+            color: #9c88ff;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+        
+        label {
+            color: #64b5f6;
+            margin-bottom: 5px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        /* Chord Viewer Styles */
+        .chord-display {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(100, 200, 255, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .chord-title {
+            font-size: 1.5rem;
+            color: #64b5f6;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .notes-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .note {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            border-radius: 50%;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 4px 15px rgba(100, 200, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .note:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(100, 200, 255, 0.5);
+        }
+        
+        .note.common {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .triad-pairs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .triad-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(156, 136, 255, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .triad-label {
+            color: #9c88ff;
+            font-size: 1rem;
+            margin-bottom: 10px;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .formula-display {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            color: #4fc3f7;
+        }
+        
+        .button-row {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .play-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+        
+        .progression-display {
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+            margin-top: 10px;
+            font-family: monospace;
+            color: #4fc3f7;
+        }
+        
+        #output {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            color: #4fc3f7;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid rgba(100, 200, 255, 0.2);
+        }
+        
+        .section-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .triad-pair {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 Polyrhythmic TriadGen 🎵</h1>
+        <div class="version">Version 8.4 - Integrated Chord Viewer Edition</div>
+        
+        <!-- Tab Navigation -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('composer')">Composer</button>
+            <button class="tab" onclick="switchTab('chordViewer')">Chord Theory</button>
+            <button class="tab" onclick="switchTab('analysis')">Analysis</button>
+        </div>
+        
+        <!-- Composer Tab -->
+        <div id="composerTab" class="tab-content active">
+            <div class="main-grid">
+                <!-- Left Hand Unit (Cello + Viola) -->
+                <div class="harmonic-unit">
+                    <h2>Left Hand Unit<br><small style="font-size: 0.8em; color: #9c88ff;">(Cello + Viola)</small></h2>
+                    
+                    <div class="section">
+                        <h3>
+                            <input type="checkbox" id="enableLH_A" checked>
+                            Section A - Left Hand
+                        </h3>
+                        <div class="triad-pair">
+                            <div class="control-group">
+                                <label>Chord Type 1:</label>
+                                <select id="chordTypeLH_A1" onchange="updateFromChordType('LH_A1')">
+                                    <option value="major">Major</option>
+                                    <option value="minor">Minor</option>
+                                    <option value="dim">Diminished</option>
+                                    <option value="aug">Augmented</option>
+                                    <option value="sus2">Sus2</option>
+                                    <option value="sus4">Sus4</option>
+                                    <option value="maj7">Major 7</option>
+                                    <option value="min7">Minor 7</option>
+                                    <option value="dom7">Dominant 7</option>
+                                </select>
+                                <label style="margin-top: 10px;">Root:</label>
+                                <select id="rootLH_A1" onchange="updateProgressionDisplay('LH_A')">
+                                    <option value="C" selected>C</option>
+                                    <option value="C#">C#</option>
+                                    <option value="D">D</option>
+                                    <option value="D#">D#</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="F#">F#</option>
+                                    <option value="G">G</option>
+                                    <option value="G#">G#</option>
+                                    <option value="A">A</option>
+                                    <option value="A#">A#</option>
+                                    <option value="B">B</option>
+                                </select>
+                            </div>
+                            <div class="control-group">
+                                <label>Auto-generated Pair:</label>
+                                <div id="autoPairLH_A" class="formula-display" style="margin-top: 5px;">
+                                    <!-- Will be filled by JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="section-controls">
+                            <div class="control-group">
+                                <label>Voice Leading:</label>
+                                <select id="voiceLeadingLH_A">
+                                    <option value="smooth">Smooth</option>
+                                    <option value="leap">Leap</option>
+                                    <option value="contrary">Contrary Motion</option>
+                                    <option value="parallel">Parallel Motion</option>
+                                </select>
+                            </div>
+                            <div class="control-group">
+                                <label>Harmonic Rhythm:</label>
+                                <select id="harmonicRhythmLH_A">
+                                    <option value="whole">Whole Note</option>
+                                    <option value="half" selected>Half Note</option>
+                                    <option value="quarter">Quarter Note</option>
+                                    <option value="syncopated">Syncopated</option>
+                                </select>
+                            </div>
+                            <div class="control-group">
+                                <label>Polyrhythm:</label>
+                                <select id="polyrhythmLH_A">
+                                    <option value="none">None (Regular)</option>
+                                    <option value="3:2">3:2</option>
+                                    <option value="5:4" selected>5:4</option>
+                                    <option value="7:4">7:4</option>
+                                    <option value="9:4">9:4</option>
+                                    <option value="11:4">11:4</option>
+                                </select>
+                            </div>
+                            <div class="control-group">
+                                <label>Measures:</label>
+                                <input type="number" id="measuresLH_A" min="1" max="8" value="4">
+                            </div>
+                        </div>
+                        <div id="progressionLH_A" class="progression-display"></div>
+                    </div>
+                </div>
+                
+                <!-- Right Hand Unit (Violins) -->
+                <div class="harmonic-unit">
+                    <h2>Right Hand Unit<br><small style="font-size: 0.8em; color: #9c88ff;">(Violin I + II)</small></h2>
+                    
+                    <div class="section">
+                        <h3>
+                            <input type="checkbox" id="enableRH_A" checked>
+                            Section A - Right Hand
+                        </h3>
+                        <div class="triad-pair">
+                            <div class="control-group">
+                                <label>Chord Type 1:</label>
+                                <select id="chordTypeRH_A1" onchange="updateFromChordType('RH_A1')">
+                                    <option value="major">Major</option>
+                                    <option value="minor" selected>Minor</option>
+                                    <option value="dim">Diminished</option>
+                                    <option value="aug">Augmented</option>
+                                    <option value="sus2">Sus2</option>
+                                    <option value="sus4">Sus4</option>
+                                    <option value="maj7">Major 7</option>
+                                    <option value="min7">Minor 7</option>
+                                    <option value="dom7">Dominant 7</option>
+                                </select>
+                                <label style="margin-top: 10px;">Root:</label>
+                                <select id="rootRH_A1" onchange="updateProgressionDisplay('RH_A')">
+                                    <option value="C">C</option>
+                                    <option value="C#">C#</option>
+                                    <option value="D">D</option>
+                                    <option value="D#">D#</option>
+                                    <option value="E" selected>E</option>
+                                    <option value="F">F</option>
+                                    <option value="F#">F#</option>
+                                    <option value="G">G</option>
+                                    <option value="G#">G#</option>
+                                    <option value="A">A</option>
+                                    <option value="A#">A#</option>
+                                    <option value="B">B</option>
+                                </select>
+                            </div>
+                            <div class="control-group">
+                                <label>Auto-generated Pair:</label>
+                                <div id="autoPairRH_A" class="formula-display" style="margin-top: 5px;">
+                                    <!-- Will be filled by JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="section-controls">
+                            <div class="control-group">
+                                <label>Voice Leading:</label>
+                                <select id="voiceLeadingRH_A">
+                                    <option value="smooth">Smooth</option>
+                                    <option value="leap">Leap</option>
+                                    <option value="contrary" selected>Contrary Motion</option>
+                                    <option value="parallel">Parallel Motion</option>
+                                </select>
+                            </div>
+                            <div class="control-group">
+                                <label>Harmonic Rhythm:</label>
+                                <select id="harmonicRhythmRH_A">
+                                    <option value="whole">Whole Note</option>
+                                    <option value="half" selected>Half Note</option>
+                                    <option value="quarter">Quarter Note</option>
+                                    <option value="syncopated">Syncopated</option>
+                                </select>
+                            </div>
+                            <div class="control-group">
+                                <label>Polyrhythm:</label>
+                                <select id="polyrhythmRH_A">
+                                    <option value="none">None (Regular)</option>
+                                    <option value="3:2">3:2</option>
+                                    <option value="5:4">5:4</option>
+                                    <option value="7:4" selected>7:4</option>
+                                    <option value="9:4">9:4</option>
+                                    <option value="11:4">11:4</option>
+                                </select>
+                            </div>
+                            <div class="control-group">
+                                <label>Measures:</label>
+                                <input type="number" id="measuresRH_A" min="1" max="8" value="4">
+                            </div>
+                        </div>
+                        <div id="progressionRH_A" class="progression-display"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="button-row">
+                <button onclick="generateComposition()">Generate Composition</button>
+                <button onclick="exportMusicXML()">Export MusicXML</button>
+                <button class="play-btn" onclick="playComposition()">▶ Play Preview</button>
+                <button onclick="clearOutput()">Clear</button>
+            </div>
+            
+            <div id="output"></div>
+        </div>
+        
+        <!-- Chord Viewer Tab -->
+        <div id="chordViewerTab" class="tab-content">
+            <div class="chord-display">
+                <div class="control-group" style="max-width: 300px; margin: 0 auto;">
+                    <label>Select Chord Type:</label>
+                    <select id="chordViewerType" onchange="updateChordDisplay()">
+                        <option value="major">Major</option>
+                        <option value="minor">Minor</option>
+                        <option value="dim">Diminished</option>
+                        <option value="aug">Augmented</option>
+                        <option value="sus2">Sus2</option>
+                        <option value="sus4">Sus4</option>
+                        <option value="maj7">Major 7</option>
+                        <option value="min7">Minor 7</option>
+                        <option value="dom7">Dominant 7</option>
+                        <option value="dim7">Diminished 7</option>
+                        <option value="aug7">Augmented 7</option>
+                        <option value="minmaj7">Minor Major 7</option>
+                        <option value="6">6th</option>
+                        <option value="min6">Minor 6th</option>
+                        <option value="9">9th</option>
+                        <option value="min9">Minor 9th</option>
+                        <option value="maj9">Major 9th</option>
+                        <option value="11">11th</option>
+                        <option value="min11">Minor 11th</option>
+                        <option value="maj11">Major 11th</option>
+                        <option value="13">13th</option>
+                        <option value="min13">Minor 13th</option>
+                        <option value="maj13">Major 13th</option>
+                        <option value="add2">Add2</option>
+                        <option value="add9">Add9</option>
+                        <option value="add11">Add11</option>
+                        <option value="minadd9">Minor Add9</option>
+                        <option value="minadd11">Minor Add11</option>
+                    </select>
+                    <label style="margin-top: 10px;">Root Note:</label>
+                    <select id="chordViewerRoot" onchange="updateChordDisplay()">
+                        <option value="C">C</option>
+                        <option value="C#">C#</option>
+                        <option value="D">D</option>
+                        <option value="D#">D#</option>
+                        <option value="E">E</option>
+                        <option value="F">F</option>
+                        <option value="F#">F#</option>
+                        <option value="G">G</option>
+                        <option value="G#">G#</option>
+                        <option value="A">A</option>
+                        <option value="A#">A#</option>
+                        <option value="B">B</option>
+                    </select>
+                </div>
+                
+                <h2 class="chord-title" id="chordDisplayName">C Major</h2>
+                
+                <div class="notes-container" id="chordNotes"></div>
+                
+                <div class="formula-display" id="chordFormula">
+                    Formula: 1 - 3 - 5
+                </div>
+                
+                <div class="triad-pairs">
+                    <div class="triad-box">
+                        <div class="triad-label">Triad 1</div>
+                        <div class="notes-container" id="triad1Notes"></div>
+                        <div id="triad1Name" style="text-align: center; color: #9c88ff; margin-top: 10px;"></div>
+                    </div>
+                    <div class="triad-box">
+                        <div class="triad-label">Triad 2</div>
+                        <div class="notes-container" id="triad2Notes"></div>
+                        <div id="triad2Name" style="text-align: center; color: #9c88ff; margin-top: 10px;"></div>
+                    </div>
+                </div>
+                
+                <div class="formula-display" style="background: rgba(156, 136, 255, 0.1); border: 1px solid rgba(156, 136, 255, 0.3);">
+                    <div id="triadPairFormula">Major(root) + Major(2nd)</div>
+                </div>
+                
+                <div class="button-row">
+                    <button class="play-btn" onclick="playChordTheory()">▶ Play Chord</button>
+                    <button class="play-btn" onclick="playTriadPairTheory()">▶ Play Triad Pair</button>
+                    <button onclick="randomChord()">Random Chord</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Analysis Tab -->
+        <div id="analysisTab" class="tab-content">
+            <div class="chord-display">
+                <h2 style="color: #64b5f6;">Harmonic Analysis</h2>
+                <p>This tab analyzes the harmonic relationships between your left and right hand units.</p>
+                <div id="analysisContent" class="formula-display" style="min-height: 200px;">
+                    Generate a composition first to see the harmonic analysis.
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Web Audio API setup
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // Chord theory data
+        const chordTheory = {
+            'major': { intervals: [0, 4, 7], formula: '1 - 3 - 5', pair: ['major', 0, 'major', 2], pairFormula: 'Major(root) + Major(2nd)' },
+            'minor': { intervals: [0, 3, 7], formula: '1 - b3 - 5', pair: ['minor', 0, 'major', 5], pairFormula: 'Minor(root) + Major(4th)' },
+            'dim': { intervals: [0, 3, 6], formula: '1 - b3 - b5', pair: ['dim', 0, 'minor', 8], pairFormula: 'Dim(root) + Minor(b6)' },
+            'aug': { intervals: [0, 4, 8], formula: '1 - 3 - #5', pair: ['aug', 0, 'major', 4], pairFormula: 'Aug(root) + Major(3rd)' },
+            'sus2': { intervals: [0, 2, 7], formula: '1 - 2 - 5', pair: ['major', 2, 'minor', 7], pairFormula: 'Major(2nd) + Minor(5th)' },
+            'sus4': { intervals: [0, 5, 7], formula: '1 - 4 - 5', pair: ['major', 5, 'minor', 7], pairFormula: 'Major(4th) + Minor(5th)' },
+            'maj7': { intervals: [0, 4, 7, 11], formula: '1 - 3 - 5 - 7', pair: ['major', 0, 'minor', 4], pairFormula: 'Major(root) + Minor(3rd)' },
+            'min7': { intervals: [0, 3, 7, 10], formula: '1 - b3 - 5 - b7', pair: ['minor', 0, 'major', 8], pairFormula: 'Minor(root) + Major(b6)' },
+            'dom7': { intervals: [0, 4, 7, 10], formula: '1 - 3 - 5 - b7', pair: ['major', 0, 'minor', 10], pairFormula: 'Major(root) + Minor(b7)' },
+            'dim7': { intervals: [0, 3, 6, 9], formula: '1 - b3 - b5 - bb7', pair: ['dim', 0, 'minor', 8], pairFormula: 'Dim(root) + Minor(b6)' },
+            'aug7': { intervals: [0, 4, 8, 10], formula: '1 - 3 - #5 - b7', pair: ['aug', 0, 'minor', 10], pairFormula: 'Aug(root) + Minor(b7)' },
+            'minmaj7': { intervals: [0, 3, 7, 11], formula: '1 - b3 - 5 - 7', pair: ['minor', 0, 'major', 4], pairFormula: 'Minor(root) + Major(3rd)' },
+            '6': { intervals: [0, 4, 7, 9], formula: '1 - 3 - 5 - 6', pair: ['major', 0, 'minor', 9], pairFormula: 'Major(root) + Minor(6th)' },
+            'min6': { intervals: [0, 3, 7, 9], formula: '1 - b3 - 5 - 6', pair: ['minor', 0, 'major', 9], pairFormula: 'Minor(root) + Major(6th)' },
+            '9': { intervals: [0, 4, 7, 10, 14], formula: '1 - 3 - 5 - b7 - 9', pair: ['major', 0, 'minor', 14], pairFormula: 'Major(root) + Minor(9th)' },
+            'min9': { intervals: [0, 3, 7, 10, 14], formula: '1 - b3 - 5 - b7 - 9', pair: ['minor', 0, 'major', 14], pairFormula: 'Minor(root) + Major(9th)' },
+            'maj9': { intervals: [0, 4, 7, 11, 14], formula: '1 - 3 - 5 - 7 - 9', pair: ['major', 0, 'minor', 14], pairFormula: 'Major(root) + Minor(9th)' },
+            '11': { intervals: [0, 4, 7, 10, 14, 17], formula: '1 - 3 - 5 - b7 - 9 - 11', pair: ['major', 0, 'minor', 17], pairFormula: 'Major(root) + Minor(11th)' },
+            'min11': { intervals: [0, 3, 7, 10, 14, 17], formula: '1 - b3 - 5 - b7 - 9 - 11', pair: ['minor', 0, 'major', 17], pairFormula: 'Minor(root) + Major(11th)' },
+            'maj11': { intervals: [0, 4, 7, 11, 14, 17], formula: '1 - 3 - 5 - 7 - 9 - 11', pair: ['major', 0, 'minor', 17], pairFormula: 'Major(root) + Minor(11th)' },
+            '13': { intervals: [0, 4, 7, 10, 14, 17, 21], formula: '1 - 3 - 5 - b7 - 9 - 11 - 13', pair: ['major', 0, 'minor', 21], pairFormula: 'Major(root) + Minor(13th)' },
+            'min13': { intervals: [0, 3, 7, 10, 14, 17, 21], formula: '1 - b3 - 5 - b7 - 9 - 11 - 13', pair: ['minor', 0, 'major', 21], pairFormula: 'Minor(root) + Major(13th)' },
+            'maj13': { intervals: [0, 4, 7, 11, 14, 17, 21], formula: '1 - 3 - 5 - 7 - 9 - 11 - 13', pair: ['major', 0, 'minor', 21], pairFormula: 'Major(root) + Minor(13th)' },
+            'add2': { intervals: [0, 2, 4, 7], formula: '1 - 2 - 3 - 5', pair: ['major', 0, 'major', 2], pairFormula: 'Major(root) + Major(2nd)' },
+            'add9': { intervals: [0, 4, 7, 14], formula: '1 - 3 - 5 - 9', pair: ['major', 0, 'major', 14], pairFormula: 'Major(root) + Major(9th)' },
+            'add11': { intervals: [0, 4, 7, 17], formula: '1 - 3 - 5 - 11', pair: ['major', 0, 'major', 17], pairFormula: 'Major(root) + Major(11th)' },
+            'minadd9': { intervals: [0, 3, 7, 14], formula: '1 - b3 - 5 - 9', pair: ['minor', 0, 'major', 14], pairFormula: 'Minor(root) + Major(9th)' },
+            'minadd11': { intervals: [0, 3, 7, 17], formula: '1 - b3 - 5 - 11', pair: ['minor', 0, 'major', 17], pairFormula: 'Minor(root) + Major(11th)' }
+        };
+        
+        const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        const noteFrequencies = {
+            'C': 261.63, 'C#': 277.18, 'D': 293.66, 'D#': 311.13, 
+            'E': 329.63, 'F': 349.23, 'F#': 369.99, 'G': 392.00,
+            'G#': 415.30, 'A': 440.00, 'A#': 466.16, 'B': 493.88
+        };
+        
+        // Tab switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+        
+        // Generate triad from chord type
+        function generateTriad(root, type) {
+            const intervals = type === 'major' ? [0, 4, 7] :
+                            type === 'minor' ? [0, 3, 7] :
+                            type === 'dim' ? [0, 3, 6] :
+                            type === 'aug' ? [0, 4, 8] : [0, 4, 7];
+            
+            return intervals.map(interval => getNoteFromInterval(root, interval));
+        }
+        
+        function getNoteFromInterval(root, interval) {
+            const rootIndex = noteNames.indexOf(root);
+            return noteNames[(rootIndex + interval) % 12];
+        }
+        
+        // Update from chord type selection
+        function updateFromChordType(sectionId) {
+            const chordType = document.getElementById('chordType' + sectionId).value;
+            const root = document.getElementById('root' + sectionId).value;
+            
+            if (chordTheory[chordType]) {
+                const theory = chordTheory[chordType];
+                const [triad1Type, triad1Interval, triad2Type, triad2Interval] = theory.pair;
+                
+                const triad1Root = getNoteFromInterval(root, triad1Interval);
+                const triad2Root = getNoteFromInterval(root, triad2Interval);
+                
+                const triad1 = generateTriad(triad1Root, triad1Type);
+                const triad2 = generateTriad(triad2Root, triad2Type);
+                
+                // Update the auto-pair display
+                const autoPairDiv = document.getElementById('autoPair' + sectionId.replace('1', ''));
+                if (autoPairDiv) {
+                    autoPairDiv.innerHTML = `
+                        <strong>Triad 1:</strong> ${triad1Root} ${triad1Type} (${triad1.join('-')})<br>
+                        <strong>Triad 2:</strong> ${triad2Root} ${triad2Type} (${triad2.join('-')})<br>
+                        <strong>Formula:</strong> ${theory.pairFormula}
+                    `;
+                }
+            }
+            
+            updateProgressionDisplay(sectionId.replace('1', ''));
+        }
+        
+        // Update progression display
+        function updateProgressionDisplay(section) {
+            const display = document.getElementById('progression' + section);
+            if (display) {
+                const chordType = document.getElementById('chordType' + section + '1').value;
+                const root = document.getElementById('root' + section + '1').value;
+                const harmonicRhythm = document.getElementById('harmonicRhythm' + section).value;
+                
+                display.innerHTML = `
+                    <strong>Chord:</strong> ${root} ${chordType}<br>
+                    <strong>Harmonic Rhythm:</strong> Changes every ${harmonicRhythm}
+                `;
+            }
+        }
+        
+        // Chord viewer functions
+        function updateChordDisplay() {
+            const root = document.getElementById('chordViewerRoot').value;
+            const chordType = document.getElementById('chordViewerType').value;
+            const theory = chordTheory[chordType];
+            
+            if (!theory) return;
+            
+            // Update chord name
+            document.getElementById('chordDisplayName').textContent = root + ' ' + 
+                chordType.replace('maj', 'Major ').replace('min', 'Minor ').replace('dim', 'Diminished ').replace('aug', 'Augmented ');
+            
+            // Get chord notes
+            const chordNotes = theory.intervals.map(interval => getNoteFromInterval(root, interval));
+            
+            // Get triad pairs
+            const [triad1Type, triad1Interval, triad2Type, triad2Interval] = theory.pair;
+            const triad1Root = getNoteFromInterval(root, triad1Interval);
+            const triad2Root = getNoteFromInterval(root, triad2Interval);
+            const triad1Notes = generateTriad(triad1Root, triad1Type);
+            const triad2Notes = generateTriad(triad2Root, triad2Type);
+            
+            // Display chord notes
+            const chordNotesDiv = document.getElementById('chordNotes');
+            chordNotesDiv.innerHTML = '';
+            chordNotes.forEach(note => {
+                const noteDiv = document.createElement('div');
+                noteDiv.className = 'note';
+                noteDiv.textContent = note;
+                if (triad1Notes.includes(note) || triad2Notes.includes(note)) {
+                    noteDiv.classList.add('common');
+                }
+                chordNotesDiv.appendChild(noteDiv);
+            });
+            
+            // Display triads
+            displayTriadNotes('triad1Notes', triad1Notes, chordNotes);
+            displayTriadNotes('triad2Notes', triad2Notes, chordNotes);
+            
+            document.getElementById('triad1Name').textContent = triad1Root + ' ' + triad1Type;
+            document.getElementById('triad2Name').textContent = triad2Root + ' ' + triad2Type;
+            
+            // Update formulas
+            document.getElementById('chordFormula').textContent = 'Formula: ' + theory.formula;
+            document.getElementById('triadPairFormula').textContent = theory.pairFormula;
+            
+            // Store for playback
+            window.currentChordNotes = chordNotes;
+            window.currentTriad1Notes = triad1Notes;
+            window.currentTriad2Notes = triad2Notes;
+        }
+        
+        function displayTriadNotes(elementId, notes, chordNotes) {
+            const div = document.getElementById(elementId);
+            div.innerHTML = '';
+            notes.forEach(note => {
+                const noteDiv = document.createElement('div');
+                noteDiv.className = 'note';
+                if (chordNotes.includes(note)) {
+                    noteDiv.classList.add('common');
+                }
+                noteDiv.textContent = note;
+                div.appendChild(noteDiv);
+            });
+        }
+        
+        // Audio playback functions
+        function playNotes(notes, delay = 0) {
+            notes.forEach((note, index) => {
+                setTimeout(() => {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.value = noteFrequencies[note] || 440;
+                    oscillator.type = 'sine';
+                    
+                    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                    gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.01);
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 1.5);
+                    
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 1.5);
+                }, delay + (index * 100));
+            });
+        }
+        
+        function playChordTheory() {
+            if (window.currentChordNotes) {
+                playNotes(window.currentChordNotes);
+            }
+        }
+        
+        function playTriadPairTheory() {
+            if (window.currentTriad1Notes && window.currentTriad2Notes) {
+                playNotes(window.currentTriad1Notes, 0);
+                playNotes(window.currentTriad2Notes, 500);
+            }
+        }
+        
+        function randomChord() {
+            const roots = noteNames;
+            const types = Object.keys(chordTheory);
+            
+            const randomRoot = roots[Math.floor(Math.random() * roots.length)];
+            const randomType = types[Math.floor(Math.random() * types.length)];
+            
+            document.getElementById('chordViewerRoot').value = randomRoot;
+            document.getElementById('chordViewerType').value = randomType;
+            
+            updateChordDisplay();
+        }
+        
+        // Composition functions
+        function generateComposition() {
+            const output = document.getElementById('output');
+            let composition = {
+                leftHand: [],
+                rightHand: []
+            };
+            
+            // Process sections
+            ['LH_A', 'RH_A'].forEach(section => {
+                const isLeftHand = section.startsWith('LH');
+                const enabled = document.getElementById('enable' + section).checked;
+                
+                if (enabled) {
+                    const chordType = document.getElementById('chordType' + section + '1').value;
+                    const root = document.getElementById('root' + section + '1').value;
+                    const measures = parseInt(document.getElementById('measures' + section).value);
+                    const polyrhythm = document.getElementById('polyrhythm' + section).value;
+                    
+                    // Generate triads from chord type
+                    const theory = chordTheory[chordType];
+                    const [triad1Type, triad1Interval, triad2Type, triad2Interval] = theory.pair;
+                    const triad1Root = getNoteFromInterval(root, triad1Interval);
+                    const triad2Root = getNoteFromInterval(root, triad2Interval);
+                    const triad1 = generateTriad(triad1Root, triad1Type);
+                    const triad2 = generateTriad(triad2Root, triad2Type);
+                    
+                    const sectionData = {
+                        section: section.split('_')[1],
+                        chord: root + ' ' + chordType,
+                        triads: [triad1, triad2],
+                        measures: measures,
+                        polyrhythm: polyrhythm
+                    };
+                    
+                    if (isLeftHand) {
+                        composition.leftHand.push(sectionData);
+                    } else {
+                        composition.rightHand.push(sectionData);
+                    }
+                }
+            });
+            
+            // Store and display
+            window.currentComposition = composition;
+            
+            output.textContent = 'Composition Generated!\n\n';
+            output.textContent += '=== LEFT HAND (Cello + Viola) ===\n';
+            composition.leftHand.forEach(section => {
+                output.textContent += `Section ${section.section}: ${section.chord}\n`;
+                output.textContent += `  Triads: ${section.triads[0].join('-')} → ${section.triads[1].join('-')}\n`;
+                output.textContent += `  Measures: ${section.measures}, Polyrhythm: ${section.polyrhythm}\n\n`;
+            });
+            
+            output.textContent += '=== RIGHT HAND (Violins) ===\n';
+            composition.rightHand.forEach(section => {
+                output.textContent += `Section ${section.section}: ${section.chord}\n`;
+                output.textContent += `  Triads: ${section.triads[0].join('-')} → ${section.triads[1].join('-')}\n`;
+                output.textContent += `  Measures: ${section.measures}, Polyrhythm: ${section.polyrhythm}\n\n`;
+            });
+            
+            // Update analysis
+            updateAnalysis();
+        }
+        
+        function updateAnalysis() {
+            const analysisDiv = document.getElementById('analysisContent');
+            if (!window.currentComposition) {
+                return;
+            }
+            
+            let analysis = '<h3>Harmonic Analysis</h3>\n';
+            
+            // Analyze relationships
+            if (window.currentComposition.leftHand.length > 0 && window.currentComposition.rightHand.length > 0) {
+                const lh = window.currentComposition.leftHand[0];
+                const rh = window.currentComposition.rightHand[0];
+                
+                analysis += `<strong>Left Hand:</strong> ${lh.chord} → Triads: ${lh.triads[0].join('-')} | ${lh.triads[1].join('-')}\n`;
+                analysis += `<strong>Right Hand:</strong> ${rh.chord} → Triads: ${rh.triads[0].join('-')} | ${rh.triads[1].join('-')}\n\n`;
+                
+                // Find common tones
+                const allLH = [...new Set([...lh.triads[0], ...lh.triads[1]])];
+                const allRH = [...new Set([...rh.triads[0], ...rh.triads[1]])];
+                const common = allLH.filter(note => allRH.includes(note));
+                
+                analysis += `<strong>Common Tones:</strong> ${common.length > 0 ? common.join(', ') : 'None'}\n`;
+                analysis += `<strong>Polyrhythmic Relationship:</strong> ${lh.polyrhythm} against ${rh.polyrhythm}\n`;
+            }
+            
+            analysisDiv.innerHTML = analysis;
+        }
+        
+        function exportMusicXML() {
+            alert('MusicXML export would generate here - implementation continues from v8.3');
+        }
+        
+        function playComposition() {
+            if (window.currentComposition && window.currentComposition.leftHand.length > 0) {
+                const notes = window.currentComposition.leftHand[0].triads[0];
+                playNotes(notes);
+            }
+        }
+        
+        function clearOutput() {
+            document.getElementById('output').textContent = '';
+            window.currentComposition = null;
+        }
+        
+        // Initialize on load
+        window.onload = function() {
+            updateFromChordType('LH_A1');
+            updateFromChordType('RH_A1');
+            updateChordDisplay();
+        };
+    </script>
+</body>
+</html>
