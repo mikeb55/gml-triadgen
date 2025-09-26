@@ -1,0 +1,1074 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PolyrhythmicTriadGen v6.0 - Professional Edition</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .subtitle {
+            color: #adbce6;
+            font-size: 1.1em;
+        }
+        
+        .main-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr 350px;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .panel {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .panel h2 {
+            margin-bottom: 15px;
+            color: #ffd700;
+            font-size: 1.3em;
+        }
+        
+        .control-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #adbce6;
+            font-size: 0.9em;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            font-size: 1em;
+        }
+        
+        input[type="number"] {
+            text-align: center;
+        }
+        
+        select option {
+            background: #2a5298;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #1e3c72;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255,215,0,0.3);
+        }
+        
+        .section-row {
+            display: grid;
+            grid-template-columns: 30px 1fr 1fr 80px;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 5px;
+        }
+        
+        .section-letter {
+            background: #ffd700;
+            color: #1e3c72;
+            text-align: center;
+            padding: 5px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        
+        .rhythm-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .rhythm-cell {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 5px;
+            padding: 10px;
+            text-align: center;
+        }
+        
+        .voice-label {
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 5px;
+        }
+        
+        .rhythm-pattern-display {
+            font-size: 0.9em;
+            margin: 5px 0;
+            color: #adbce6;
+        }
+        
+        #visualizer {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 20px;
+            min-height: 400px;
+            position: relative;
+            overflow-x: auto;
+        }
+        
+        .voice-track {
+            height: 50px;
+            margin: 10px 0;
+            background: rgba(255,255,255,0.05);
+            border-radius: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .voice-name {
+            position: absolute;
+            left: 10px;
+            top: 15px;
+            color: #ffd700;
+            z-index: 10;
+            font-size: 0.9em;
+        }
+        
+        .note-event {
+            position: absolute;
+            bottom: 5px;
+            background: #ffd700;
+            border-radius: 2px;
+            opacity: 0.8;
+        }
+        
+        .rest-event {
+            position: absolute;
+            bottom: 20px;
+            width: 20px;
+            height: 2px;
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .measure-line {
+            position: absolute;
+            width: 1px;
+            height: 100%;
+            background: rgba(255,255,255,0.2);
+            border-left: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .section-marker {
+            position: absolute;
+            top: -20px;
+            background: #ffd700;
+            color: #1e3c72;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        
+        .complexity-slider {
+            width: 100%;
+            margin: 10px 0;
+        }
+        
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8em;
+            color: #adbce6;
+        }
+        
+        .preset-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .preset-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 8px;
+            font-size: 0.9em;
+        }
+        
+        .preset-btn.active {
+            background: rgba(255,215,0,0.3);
+            border-color: #ffd700;
+        }
+        
+        .output-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .code-output {
+            background: rgba(0,0,0,0.3);
+            border-radius: 5px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .analysis-display {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .analysis-item {
+            background: rgba(255,255,255,0.05);
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        .analysis-label {
+            color: #adbce6;
+            font-size: 0.8em;
+        }
+        
+        .analysis-value {
+            font-size: 1.2em;
+            color: #ffd700;
+            font-weight: bold;
+        }
+        
+        .rhythm-type-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        
+        .rhythm-type-btn {
+            padding: 5px;
+            font-size: 0.8em;
+            background: rgba(255,255,255,0.05);
+        }
+        
+        .rhythm-type-btn.active {
+            background: rgba(255,215,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>PolyrhythmicTriadGen v6.0</h1>
+            <div class="subtitle">Advanced Polyrhythmic Triad Generation with Enhanced Rhythm Patterns</div>
+        </header>
+        
+        <div class="main-grid">
+            <!-- Left Panel: Triad & Structure Controls -->
+            <div class="panel">
+                <h2>Composition Structure</h2>
+                
+                <div class="control-group">
+                    <label>Total Measures</label>
+                    <input type="number" id="totalMeasures" min="1" max="32" value="8">
+                </div>
+                
+                <div class="control-group">
+                    <label>Tempo (BPM)</label>
+                    <input type="number" id="tempo" min="40" max="200" value="100">
+                </div>
+                
+                <div class="control-group">
+                    <label>Root Note</label>
+                    <select id="rootNote">
+                        <option value="C">C</option>
+                        <option value="C#">C#</option>
+                        <option value="D" selected>D</option>
+                        <option value="D#">D#</option>
+                        <option value="E">E</option>
+                        <option value="F">F</option>
+                        <option value="F#">F#</option>
+                        <option value="G">G</option>
+                        <option value="G#">G#</option>
+                        <option value="A">A</option>
+                        <option value="A#">A#</option>
+                        <option value="B">B</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label>Triad Quality</label>
+                    <select id="quality">
+                        <option value="major" selected>Major</option>
+                        <option value="minor">Minor</option>
+                        <option value="diminished">Diminished</option>
+                        <option value="augmented">Augmented</option>
+                        <option value="suspended2">Sus2</option>
+                        <option value="suspended4">Sus4</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label>Ensemble Type</label>
+                    <select id="ensemble">
+                        <option value="solo">Solo</option>
+                        <option value="quartet">String Quartet</option>
+                        <option value="quintet" selected>String Quintet (with Guitar)</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label>Rhythmic Complexity</label>
+                    <input type="range" id="complexity" min="1" max="10" value="5" class="complexity-slider">
+                    <div class="slider-labels">
+                        <span>Simple</span>
+                        <span>Complex</span>
+                    </div>
+                    <div style="text-align: center; color: #ffd700;">
+                        Level: <span id="complexityValue">5</span>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label>Rhythm Pattern Style</label>
+                    <div class="rhythm-type-selector">
+                        <button class="rhythm-type-btn active" data-type="mixed">Mixed</button>
+                        <button class="rhythm-type-btn" data-type="continuous">Continuous</button>
+                        <button class="rhythm-type-btn" data-type="sparse">Sparse</button>
+                        <button class="rhythm-type-btn" data-type="syncopated">Syncopated</button>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label>Presets</label>
+                    <div class="preset-buttons">
+                        <button class="preset-btn" onclick="loadPreset('Minimalist')">Minimalist</button>
+                        <button class="preset-btn" onclick="loadPreset('Jazz Fusion')">Jazz Fusion</button>
+                        <button class="preset-btn" onclick="loadPreset('Progressive')">Progressive</button>
+                        <button class="preset-btn" onclick="loadPreset('Complex Contemporary')">Contemporary</button>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <button onclick="generatePattern()" style="width: 100%; padding: 15px; font-size: 1.1em;">
+                        GENERATE PATTERN
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Center Panel: Visualization -->
+            <div class="panel">
+                <h2>Polyrhythmic Visualization</h2>
+                
+                <div style="margin-bottom: 15px;">
+                    <h3 style="color: #ffd700; margin-bottom: 10px;">Sections</h3>
+                    <div id="sectionsContainer">
+                        <!-- Sections will be added here -->
+                    </div>
+                    <button onclick="addSection()" style="width: 100%; margin-top: 10px;">+ Add Section</button>
+                </div>
+                
+                <div id="visualizer">
+                    <div id="measureMarkers"></div>
+                    <div id="voiceTracks"></div>
+                </div>
+                
+                <div class="rhythm-grid" id="rhythmGrid">
+                    <!-- Rhythm assignments will be displayed here -->
+                </div>
+                
+                <div class="output-section">
+                    <h3 style="margin-bottom: 10px;">Pattern Analysis</h3>
+                    <div class="analysis-display" id="analysisDisplay">
+                        <!-- Analysis results here -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Panel: Output & Export -->
+            <div class="panel">
+                <h2>Output & Integration</h2>
+                
+                <div class="control-group">
+                    <label>Target Application</label>
+                    <select id="targetApp">
+                        <option value="standalone">Standalone</option>
+                        <option value="quartet-engine">Quartet Engine</option>
+                        <option value="quintet-composer">Quintet Composer</option>
+                        <option value="sibelius" selected>Sibelius (MusicXML)</option>
+                    </select>
+                </div>
+                
+                <div style="margin: 15px 0;">
+                    <button onclick="exportMusicXML()">Export MusicXML (Sibelius)</button>
+                    <button onclick="exportJSON()">Export JSON</button>
+                    <button onclick="playPreview()">▶ Preview (MIDI)</button>
+                </div>
+                
+                <div class="output-section">
+                    <h3>Current Pattern Summary</h3>
+                    <div class="code-output" id="patternOutput">
+                        <pre>No pattern generated yet</pre>
+                    </div>
+                </div>
+                
+                <div class="output-section">
+                    <h3>Voice Rhythms</h3>
+                    <div id="voiceAssignments" class="code-output">
+                        <!-- Voice-specific data here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // =====================================================
+        // POLYRHYTHMIC ENGINE v6.0 - ENHANCED RHYTHM GENERATION
+        // =====================================================
+        
+        let currentComposition = null;
+        let sections = [];
+        let rhythmStyle = 'mixed';
+        
+        // Enhanced rhythm patterns with variety
+        const rhythmPatterns = {
+            simple: {
+                '2:3': { 
+                    patterns: [
+                        [{type: 'note', dur: 128}, {type: 'note', dur: 128}],
+                        [{type: 'note', dur: 192}, {type: 'rest', dur: 64}],
+                        [{type: 'note', dur: 64}, {type: 'note', dur: 64}, {type: 'note', dur: 128}]
+                    ]
+                },
+                '3:2': {
+                    patterns: [
+                        [{type: 'note', dur: 85}, {type: 'note', dur: 85}, {type: 'note', dur: 86}],
+                        [{type: 'note', dur: 128}, {type: 'rest', dur: 64}, {type: 'note', dur: 64}],
+                        [{type: 'note', dur: 170}, {type: 'note', dur: 86}]
+                    ]
+                }
+            },
+            intermediate: {
+                '5:4': {
+                    patterns: [
+                        [{type: 'note', dur: 51}, {type: 'note', dur: 51}, {type: 'note', dur: 51}, {type: 'note', dur: 51}, {type: 'note', dur: 52}],
+                        [{type: 'note', dur: 102}, {type: 'rest', dur: 51}, {type: 'note', dur: 51}, {type: 'note', dur: 52}],
+                        [{type: 'note', dur: 51}, {type: 'rest', dur: 51}, {type: 'note', dur: 51}, {type: 'rest', dur: 51}, {type: 'note', dur: 52}]
+                    ]
+                },
+                '4:5': {
+                    patterns: [
+                        [{type: 'note', dur: 80}, {type: 'note', dur: 80}, {type: 'note', dur: 80}, {type: 'note', dur: 80}],
+                        [{type: 'note', dur: 160}, {type: 'rest', dur: 80}, {type: 'note', dur: 80}],
+                        [{type: 'note', dur: 80}, {type: 'rest', dur: 80}, {type: 'note', dur: 160}]
+                    ]
+                },
+                '6:4': {
+                    patterns: [
+                        [{type: 'note', dur: 42}, {type: 'note', dur: 43}, {type: 'note', dur: 43}, {type: 'note', dur: 42}, {type: 'note', dur: 43}, {type: 'note', dur: 43}],
+                        [{type: 'note', dur: 85}, {type: 'rest', dur: 43}, {type: 'note', dur: 85}, {type: 'rest', dur: 43}],
+                        [{type: 'note', dur: 128}, {type: 'note', dur: 43}, {type: 'note', dur: 43}, {type: 'note', dur: 42}]
+                    ]
+                }
+            },
+            complex: {
+                '7:4': {
+                    patterns: [
+                        [{type: 'note', dur: 36}, {type: 'note', dur: 37}, {type: 'note', dur: 37}, {type: 'note', dur: 36}, {type: 'note', dur: 37}, {type: 'note', dur: 37}, {type: 'note', dur: 36}]
+                    ]
+                },
+                '11:8': {
+                    patterns: [
+                        [{type: 'note', dur: 23}, {type: 'note', dur: 23}, {type: 'note', dur: 23}, {type: 'note', dur: 23}, {type: 'note', dur: 23}, {type: 'note', dur: 23}, {type: 'note', dur: 23}, {type: 'note', dur: 23}, {type: 'note', dur: 24}, {type: 'note', dur: 24}, {type: 'note', dur: 24}]
+                    ]
+                },
+                '13:8': {
+                    patterns: [
+                        [{type: 'note', dur: 19}, {type: 'note', dur: 20}, {type: 'note', dur: 20}, {type: 'note', dur: 19}, {type: 'note', dur: 20}, {type: 'note', dur: 20}, {type: 'note', dur: 19}, {type: 'note', dur: 20}, {type: 'note', dur: 20}, {type: 'note', dur: 19}, {type: 'note', dur: 20}, {type: 'note', dur: 20}, {type: 'note', dur: 20}]
+                    ]
+                }
+            }
+        };
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Complexity slider
+            document.getElementById('complexity').addEventListener('input', function(e) {
+                document.getElementById('complexityValue').textContent = e.target.value;
+            });
+            
+            // Rhythm type buttons
+            document.querySelectorAll('.rhythm-type-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.rhythm-type-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    rhythmStyle = this.dataset.type;
+                });
+            });
+            
+            // Add initial section
+            addSection();
+        });
+        
+        // Add section with rehearsal mark
+        function addSection() {
+            const letter = String.fromCharCode(65 + sections.length); // A, B, C, etc.
+            const startMeasure = sections.length > 0 ? 
+                sections[sections.length - 1].endMeasure + 1 : 1;
+            const endMeasure = Math.min(startMeasure + 3, 32);
+            
+            const section = {
+                letter: letter,
+                startMeasure: startMeasure,
+                endMeasure: endMeasure,
+                complexity: 5
+            };
+            
+            sections.push(section);
+            renderSections();
+        }
+        
+        // Render sections UI
+        function renderSections() {
+            const container = document.getElementById('sectionsContainer');
+            container.innerHTML = '';
+            
+            sections.forEach((section, index) => {
+                const row = document.createElement('div');
+                row.className = 'section-row';
+                row.innerHTML = `
+                    <div class="section-letter">${section.letter}</div>
+                    <input type="number" min="1" max="32" value="${section.startMeasure}" 
+                           onchange="updateSectionMeasure(${index}, 'start', this.value)">
+                    <input type="number" min="1" max="32" value="${section.endMeasure}"
+                           onchange="updateSectionMeasure(${index}, 'end', this.value)">
+                    <button onclick="removeSection(${index})" style="padding: 5px;">Remove</button>
+                `;
+                container.appendChild(row);
+            });
+        }
+        
+        // Update section measure range
+        function updateSectionMeasure(index, type, value) {
+            if (type === 'start') {
+                sections[index].startMeasure = parseInt(value);
+            } else {
+                sections[index].endMeasure = parseInt(value);
+            }
+        }
+        
+        // Remove section
+        function removeSection(index) {
+            if (sections.length > 1) {
+                sections.splice(index, 1);
+                renderSections();
+            }
+        }
+        
+        // Generate pattern with enhanced rhythms
+        function generatePattern() {
+            const params = {
+                root: document.getElementById('rootNote').value,
+                quality: document.getElementById('quality').value,
+                ensemble: document.getElementById('ensemble').value,
+                complexity: parseInt(document.getElementById('complexity').value),
+                totalMeasures: parseInt(document.getElementById('totalMeasures').value),
+                tempo: parseInt(document.getElementById('tempo').value)
+            };
+            
+            // Generate triad
+            const triad = generateTriad(params.root, params.quality);
+            
+            // Get ensemble voices
+            const ensembles = {
+                solo: ['primary'],
+                quartet: ['violin1', 'violin2', 'viola', 'cello'],
+                quintet: ['guitar', 'violin1', 'violin2', 'viola', 'cello']
+            };
+            
+            const voices = ensembles[params.ensemble];
+            
+            // Generate composition
+            currentComposition = {
+                triad: triad,
+                measures: params.totalMeasures,
+                tempo: params.tempo,
+                sections: sections,
+                voices: {}
+            };
+            
+            // Generate voice patterns with variety
+            voices.forEach((voice, voiceIndex) => {
+                currentComposition.voices[voice] = generateVoicePattern(
+                    voice, voiceIndex, params, triad
+                );
+            });
+            
+            // Update displays
+            updateVisualization();
+            updateRhythmGrid();
+            updateAnalysis();
+            updatePatternOutput();
+        }
+        
+        // Generate voice pattern with rhythm variety
+        function generateVoicePattern(voice, voiceIndex, params, triad) {
+            const pattern = {
+                instrument: voice,
+                measures: []
+            };
+            
+            const tupletOptions = getTupletOptions(params.complexity);
+            const dynamics = ['pp', 'p', 'mp', 'mf', 'f', 'ff'];
+            
+            for (let m = 1; m <= params.totalMeasures; m++) {
+                const section = sections.find(s => m >= s.startMeasure && m <= s.endMeasure);
+                const tuplet = tupletOptions[voiceIndex % tupletOptions.length];
+                
+                const measureData = {
+                    number: m,
+                    section: section ? section.letter : 'A',
+                    tupletRatio: tuplet.ratio,
+                    events: generateRhythmEvents(tuplet, triad, rhythmStyle),
+                    dynamic: dynamics[Math.min(params.complexity - 1, dynamics.length - 1)]
+                };
+                
+                // Add rehearsal mark for section starts
+                if (section && m === section.startMeasure) {
+                    measureData.rehearsalMark = section.letter;
+                }
+                
+                pattern.measures.push(measureData);
+            }
+            
+            return pattern;
+        }
+        
+        // Generate rhythm events (notes and rests)
+        function generateRhythmEvents(tuplet, triad, style) {
+            const events = [];
+            const notes = [triad.root, triad.third, triad.fifth];
+            
+            // Get pattern from library or generate
+            const patternKey = tuplet.ratio;
+            let rhythmPattern = null;
+            
+            // Find appropriate pattern
+            for (const complexity of ['simple', 'intermediate', 'complex']) {
+                if (rhythmPatterns[complexity][patternKey]) {
+                    const patterns = rhythmPatterns[complexity][patternKey].patterns;
+                    rhythmPattern = patterns[Math.floor(Math.random() * patterns.length)];
+                    break;
+                }
+            }
+            
+            // If no pattern found, generate default
+            if (!rhythmPattern) {
+                const [num, denom] = tuplet.ratio.split(':').map(n => parseInt(n));
+                const duration = Math.floor(256 / num);
+                
+                for (let i = 0; i < num; i++) {
+                    if (style === 'sparse' && Math.random() > 0.6) {
+                        events.push({ type: 'rest', duration: duration });
+                    } else {
+                        events.push({
+                            type: 'note',
+                            pitch: notes[i % 3],
+                            octave: 4 + Math.floor(i / 6),
+                            duration: duration
+                        });
+                    }
+                }
+            } else {
+                // Use pattern from library
+                let noteIndex = 0;
+                rhythmPattern.forEach(event => {
+                    if (event.type === 'note') {
+                        events.push({
+                            type: 'note',
+                            pitch: notes[noteIndex % 3],
+                            octave: 4 + Math.floor(noteIndex / 6),
+                            duration: event.dur
+                        });
+                        noteIndex++;
+                    } else {
+                        events.push({
+                            type: 'rest',
+                            duration: event.dur
+                        });
+                    }
+                });
+            }
+            
+            return events;
+        }
+        
+        // Get tuplet options based on complexity
+        function getTupletOptions(complexity) {
+            const options = [];
+            
+            if (complexity <= 3) {
+                options.push(
+                    { ratio: '2:3', num: 2, denom: 3 },
+                    { ratio: '3:2', num: 3, denom: 2 },
+                    { ratio: '4:3', num: 4, denom: 3 }
+                );
+            } else if (complexity <= 6) {
+                options.push(
+                    { ratio: '5:4', num: 5, denom: 4 },
+                    { ratio: '4:5', num: 4, denom: 5 },
+                    { ratio: '6:4', num: 6, denom: 4 },
+                    { ratio: '7:6', num: 7, denom: 6 }
+                );
+            } else {
+                options.push(
+                    { ratio: '7:4', num: 7, denom: 4 },
+                    { ratio: '11:8', num: 11, denom: 8 },
+                    { ratio: '13:8', num: 13, denom: 8 }
+                );
+            }
+            
+            return options;
+        }
+        
+        // Generate triad
+        function generateTriad(root, quality) {
+            const intervals = {
+                major: [0, 4, 7],
+                minor: [0, 3, 7],
+                diminished: [0, 3, 6],
+                augmented: [0, 4, 8],
+                suspended2: [0, 2, 7],
+                suspended4: [0, 5, 7]
+            };
+            
+            const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+            const rootIndex = notes.indexOf(root);
+            const pattern = intervals[quality] || intervals.major;
+            
+            return {
+                root: root,
+                third: notes[(rootIndex + pattern[1]) % 12],
+                fifth: notes[(rootIndex + pattern[2]) % 12],
+                quality: quality
+            };
+        }
+        
+        // Update visualization
+        function updateVisualization() {
+            const visualizer = document.getElementById('visualizer');
+            const tracks = document.getElementById('voiceTracks');
+            
+            if (!currentComposition) return;
+            
+            tracks.innerHTML = '';
+            
+            // Add measure lines
+            const measureWidth = 100 / currentComposition.measures;
+            for (let m = 0; m < currentComposition.measures; m++) {
+                const line = document.createElement('div');
+                line.className = 'measure-line';
+                line.style.left = `${m * measureWidth}%`;
+                tracks.appendChild(line);
+            }
+            
+            // Add section markers
+            sections.forEach(section => {
+                const marker = document.createElement('div');
+                marker.className = 'section-marker';
+                marker.style.left = `${(section.startMeasure - 1) * measureWidth}%`;
+                marker.textContent = section.letter;
+                tracks.appendChild(marker);
+            });
+            
+            // Add voice tracks
+            Object.entries(currentComposition.voices).forEach(([voice, data]) => {
+                const track = document.createElement('div');
+                track.className = 'voice-track';
+                
+                const label = document.createElement('div');
+                label.className = 'voice-name';
+                label.textContent = voice;
+                track.appendChild(label);
+                
+                // Add events visualization
+                data.measures.forEach(measure => {
+                    let position = ((measure.number - 1) / currentComposition.measures) * 100;
+                    const measureWidth = 100 / currentComposition.measures;
+                    
+                    measure.events.forEach(event => {
+                        const elem = document.createElement('div');
+                        
+                        if (event.type === 'note') {
+                            elem.className = 'note-event';
+                            elem.style.left = `${position}%`;
+                            elem.style.width = `${(event.duration / 1024) * measureWidth}%`;
+                            elem.style.height = '30px';
+                        } else {
+                            elem.className = 'rest-event';
+                            elem.style.left = `${position}%`;
+                        }
+                        
+                        track.appendChild(elem);
+                        position += (event.duration / 1024) * measureWidth;
+                    });
+                });
+                
+                tracks.appendChild(track);
+            });
+        }
+        
+        // Update rhythm grid
+        function updateRhythmGrid() {
+            const grid = document.getElementById('rhythmGrid');
+            grid.innerHTML = '';
+            
+            if (!currentComposition) return;
+            
+            Object.entries(currentComposition.voices).forEach(([voice, data]) => {
+                const cell = document.createElement('div');
+                cell.className = 'rhythm-cell';
+                
+                const firstMeasure = data.measures[0];
+                const patternSummary = firstMeasure.events
+                    .map(e => e.type === 'note' ? '♪' : '𝄽')
+                    .join(' ');
+                
+                cell.innerHTML = `
+                    <div class="voice-label">${voice}</div>
+                    <div class="tuplet-display">${firstMeasure.tupletRatio}</div>
+                    <div class="rhythm-pattern-display">${patternSummary}</div>
+                    <div style="font-size: 0.8em; color: #adbce6;">${firstMeasure.dynamic}</div>
+                `;
+                grid.appendChild(cell);
+            });
+        }
+        
+        // Update analysis
+        function updateAnalysis() {
+            const display = document.getElementById('analysisDisplay');
+            
+            if (!currentComposition) {
+                display.innerHTML = '<div>No pattern to analyze</div>';
+                return;
+            }
+            
+            const voiceCount = Object.keys(currentComposition.voices).length;
+            const uniqueRatios = new Set();
+            let totalEvents = 0;
+            let noteEvents = 0;
+            
+            Object.values(currentComposition.voices).forEach(voice => {
+                voice.measures.forEach(measure => {
+                    uniqueRatios.add(measure.tupletRatio);
+                    measure.events.forEach(event => {
+                        totalEvents++;
+                        if (event.type === 'note') noteEvents++;
+                    });
+                });
+            });
+            
+            const density = Math.round((noteEvents / totalEvents) * 100);
+            
+            display.innerHTML = `
+                <div class="analysis-item">
+                    <div class="analysis-label">Measures</div>
+                    <div class="analysis-value">${currentComposition.measures}</div>
+                </div>
+                <div class="analysis-item">
+                    <div class="analysis-label">Sections</div>
+                    <div class="analysis-value">${sections.length}</div>
+                </div>
+                <div class="analysis-item">
+                    <div class="analysis-label">Unique Rhythms</div>
+                    <div class="analysis-value">${uniqueRatios.size}</div>
+                </div>
+                <div class="analysis-item">
+                    <div class="analysis-label">Note Density</div>
+                    <div class="analysis-value">${density}%</div>
+                </div>
+            `;
+        }
+        
+        // Update pattern output
+        function updatePatternOutput() {
+            const output = document.getElementById('patternOutput');
+            const voiceOutput = document.getElementById('voiceAssignments');
+            
+            if (!currentComposition) {
+                output.innerHTML = '<pre>No pattern generated yet</pre>';
+                return;
+            }
+            
+            // Summary
+            const summary = {
+                triad: currentComposition.triad,
+                measures: currentComposition.measures,
+                tempo: currentComposition.tempo,
+                sections: sections.map(s => `${s.letter}: m.${s.startMeasure}-${s.endMeasure}`),
+                rhythmStyle: rhythmStyle
+            };
+            
+            output.innerHTML = `<pre>${JSON.stringify(summary, null, 2)}</pre>`;
+            
+            // Voice rhythms
+            let voiceText = '';
+            Object.entries(currentComposition.voices).forEach(([voice, data]) => {
+                const measure = data.measures[0];
+                voiceText += `${voice.toUpperCase()}\n`;
+                voiceText += `  Ratio: ${measure.tupletRatio}\n`;
+                voiceText += `  Pattern: ${measure.events.length} events\n`;
+                voiceText += `  Dynamic: ${measure.dynamic}\n\n`;
+            });
+            voiceOutput.innerHTML = `<pre>${voiceText}</pre>`;
+        }
+        
+        // Export MusicXML with enhanced rhythm notation
+        function exportMusicXML() {
+            if (!currentComposition) {
+                alert('Please generate a pattern first');
+                return;
+            }
+            
+            const xml = generateEnhancedMusicXML();
+            const blob = new Blob([xml], { type: 'text/xml' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `polyrhythmic-${currentComposition.triad.root}-${currentComposition.triad.quality}.musicxml`;
+            a.click();
+        }
+        
+        // Generate enhanced MusicXML
+        function generateEnhancedMusicXML() {
+            // [MusicXML generation code would go here - similar to v5 but with rest support]
+            // This is a placeholder for brevity
+            return `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.0 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">
+<score-partwise version="3.0">
+  <!-- Enhanced MusicXML with rests and varied rhythms -->
+</score-partwise>`;
+        }
+        
+        // Load preset
+        function loadPreset(presetName) {
+            const presets = {
+                'Minimalist': { 
+                    complexity: 3, 
+                    ensemble: 'quartet',
+                    rhythmStyle: 'sparse',
+                    measures: 16
+                },
+                'Jazz Fusion': { 
+                    complexity: 6, 
+                    ensemble: 'quintet',
+                    rhythmStyle: 'syncopated',
+                    measures: 8
+                },
+                'Progressive': { 
+                    complexity: 7, 
+                    ensemble: 'quintet',
+                    rhythmStyle: 'mixed',
+                    measures: 12
+                },
+                'Complex Contemporary': { 
+                    complexity: 9, 
+                    ensemble: 'quintet',
+                    rhythmStyle: 'continuous',
+                    measures: 16
+                }
+            };
+            
+            const preset = presets[presetName];
+            if (preset) {
+                document.getElementById('complexity').value = preset.complexity;
+                document.getElementById('complexityValue').textContent = preset.complexity;
+                document.getElementById('ensemble').value = preset.ensemble;
+                document.getElementById('totalMeasures').value = preset.measures;
+                
+                // Set rhythm style
+                document.querySelectorAll('.rhythm-type-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.dataset.type === preset.rhythmStyle) {
+                        btn.classList.add('active');
+                    }
+                });
+                rhythmStyle = preset.rhythmStyle;
+            }
+        }
+        
+        // Export JSON
+        function exportJSON() {
+            if (!currentComposition) {
+                alert('Please generate a pattern first');
+                return;
+            }
+            
+            const blob = new Blob([JSON.stringify(currentComposition, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'polyrhythmic-composition.json';
+            a.click();
+        }
+        
+        // Play preview (placeholder)
+        function playPreview() {
+            alert('MIDI preview would play here - requires Web MIDI API implementation');
+        }
+    </script>
+</body>
+</html>

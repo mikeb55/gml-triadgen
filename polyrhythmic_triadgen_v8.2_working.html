@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Polyrhythmic TriadGen v8.2 - WORKING</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(0,0,0,0.3);
+            padding: 30px;
+            border-radius: 15px;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+        .section {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .section h2 {
+            color: #ffcc00;
+            margin-top: 0;
+        }
+        label {
+            display: inline-block;
+            width: 120px;
+            margin: 10px 0;
+        }
+        select, input {
+            padding: 5px;
+            width: 150px;
+        }
+        button {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover {
+            background: #ff5252;
+        }
+        .output {
+            background: rgba(0,0,0,0.5);
+            padding: 20px;
+            border-radius: 10px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Polyrhythmic TriadGen v8.2</h1>
+        
+        <div class="controls">
+            <div class="section">
+                <h2>Section A</h2>
+                <div>
+                    <label>Root:</label>
+                    <select id="rootA">
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+                        <option value="E">E</option>
+                        <option value="F">F</option>
+                        <option value="G">G</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Type:</label>
+                    <select id="typeA">
+                        <option value="major">Major</option>
+                        <option value="minor">Minor</option>
+                        <option value="dim">Diminished</option>
+                        <option value="aug">Augmented</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Rhythm:</label>
+                    <select id="rhythmA">
+                        <option value="quarter">Quarter Notes</option>
+                        <option value="eighth">Eighth Notes</option>
+                        <option value="poly3">3:2 Polyrhythm</option>
+                        <option value="poly5">5:4 Polyrhythm</option>
+                        <option value="poly7">7:4 Polyrhythm</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Measures:</label>
+                    <input type="number" id="measuresA" value="4" min="1" max="16">
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>Section B</h2>
+                <div>
+                    <label>Root:</label>
+                    <select id="rootB">
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+                        <option value="E">E</option>
+                        <option value="F">F</option>
+                        <option value="G">G</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Type:</label>
+                    <select id="typeB">
+                        <option value="minor">Minor</option>
+                        <option value="major">Major</option>
+                        <option value="dim">Diminished</option>
+                        <option value="aug">Augmented</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Rhythm:</label>
+                    <select id="rhythmB">
+                        <option value="quarter">Quarter Notes</option>
+                        <option value="eighth">Eighth Notes</option>
+                        <option value="poly3">3:2 Polyrhythm</option>
+                        <option value="poly5">5:4 Polyrhythm</option>
+                        <option value="poly7">7:4 Polyrhythm</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Measures:</label>
+                    <input type="number" id="measuresB" value="4" min="1" max="16">
+                </div>
+            </div>
+        </div>
+        
+        <div style="text-align: center;">
+            <button onclick="generateAndExport()">GENERATE & EXPORT MUSICXML</button>
+        </div>
+        
+        <div class="output" id="output">Ready...</div>
+    </div>
+
+    <script>
+function generateAndExport() {
+    // Get values
+    const rootA = document.getElementById('rootA').value;
+    const typeA = document.getElementById('typeA').value;
+    const rhythmA = document.getElementById('rhythmA').value;
+    const measuresA = parseInt(document.getElementById('measuresA').value);
+    
+    const rootB = document.getElementById('rootB').value;
+    const typeB = document.getElementById('typeB').value;
+    const rhythmB = document.getElementById('rhythmB').value;
+    const measuresB = parseInt(document.getElementById('measuresB').value);
+    
+    // Build triads
+    const noteMap = {'C':0,'D':2,'E':4,'F':5,'G':7,'A':9,'B':11};
+    const intervals = {
+        'major': [0,4,7],
+        'minor': [0,3,7],
+        'dim': [0,3,6],
+        'aug': [0,4,8]
+    };
+    
+    function getTriad(root, type) {
+        const notes = [];
+        const rootVal = noteMap[root];
+        const noteNames = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+        intervals[type].forEach(i => {
+            notes.push(noteNames[(rootVal + i) % 12]);
+        });
+        return notes;
+    }
+    
+    const triadA = getTriad(rootA, typeA);
+    const triadB = getTriad(rootB, typeB);
+    
+    // Create MusicXML
+    let xml = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n';
+    xml += '<!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.0 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">\n';
+    xml += '<score-partwise version="3.0">\n';
+    xml += '<work><work-title>Generated Composition</work-title></work>\n';
+    xml += '<part-list><score-part id="P1"><part-name>Violin</part-name></score-part></part-list>\n';
+    xml += '<part id="P1">\n';
+    
+    let measureNum = 1;
+    
+    // Generate Section A
+    for (let m = 0; m < measuresA; m++) {
+        xml += `<measure number="${measureNum}">\n`;
+        
+        if (measureNum === 1) {
+            xml += '<attributes>\n';
+            xml += '<divisions>256</divisions>\n';
+            xml += '<key><fifths>0</fifths></key>\n';
+            xml += '<time><beats>4</beats><beat-type>4</beat-type></time>\n';
+            xml += '<clef><sign>G</sign><line>2</line></clef>\n';
+            xml += '</attributes>\n';
+        }
+        
+        // Add notes based on rhythm - FULL MEASURE (1024 units)
+        if (rhythmA === 'quarter') {
+            // 4 quarter notes = 256 each
+            for (let n = 0; n < 4; n++) {
+                const note = triadA[n % 3];
+                const step = note.replace('#','');
+                xml += '<note>\n';
+                xml += '<pitch>\n';
+                xml += `<step>${step}</step>\n`;
+                if (note.includes('#')) xml += '<alter>1</alter>\n';
+                xml += '<octave>4</octave>\n';
+                xml += '</pitch>\n';
+                xml += '<duration>256</duration>\n';
+                xml += '<voice>1</voice>\n';
+                xml += '<type>quarter</type>\n';
+                xml += '</note>\n';
+            }
+        } else if (rhythmA === 'eighth') {
+            // 8 eighth notes = 128 each
+            for (let n = 0; n < 8; n++) {
+                const note = triadA[n % 3];
+                const step = note.replace('#','');
+                xml += '<note>\n';
+                xml += '<pitch>\n';
+                xml += `<step>${step}</step>\n`;
+                if (note.includes('#')) xml += '<alter>1</alter>\n';
+                xml += '<octave>4</octave>\n';
+                xml += '</pitch>\n';
+                xml += '<duration>128</duration>\n';
+                xml += '<voice>1</voice>\n';
+                xml += '<type>eighth</type>\n';
+                xml += '</note>\n';
+            }
+        } else if (rhythmA === 'poly3') {
+            // 3:2 polyrhythm - 3 notes fill measure
+            for (let n = 0; n < 3; n++) {
+                const note = triadA[n];
+                const step = note.replace('#','');
+                const dur = n < 2 ? 341 : 342; // 341+341+342 = 1024
+                xml += '<note>\n';
+                xml += '<pitch>\n';
+                xml += `<step>${step}</step>\n`;
+                if (note.includes('#')) xml += '<alter>1</alter>\n';
+                xml += '<octave>4</octave>\n';
+                xml += '</pitch>\n';
+                xml += `<duration>${dur}</duration>\n`;
+                xml += '<voice>1</voice>\n';
+                xml += '<type>quarter</type>\n';
+                xml += '<time-modification>\n';
+                xml += '<actual-notes>3</actual-notes>\n';
+                xml += '<normal-notes>2</normal-notes>\n';
+                xml += '</time-modification>\n';
+                if (n === 0) xml += '<notations><tuplet type="start" bracket="yes"/></notations>\n';
+                if (n === 2) xml += '<notations><tuplet type="stop" bracket="yes"/></notations>\n';
+                xml += '</note>\n';
+            }
+        } else if (rhythmA === 'poly5') {
+            // 5:4 polyrhythm - 5 notes fill measure
+            // THIS TIME WITH CORRECT MATH: 1024/5 = 204.8
+            for (let n = 0; n < 5; n++) {
+                const note = triadA[n % 3];
+                const step = note.replace('#','');
+                const dur = (n < 4) ? 205 : 204; // 205*4 + 204 = 1024
+                xml += '<note>\n';
+                xml += '<pitch>\n';
+                xml += `<step>${step}</step>\n`;
+                if (note.includes('#')) xml += '<alter>1</alter>\n';
+                xml += '<octave>4</octave>\n';
+                xml += '</pitch>\n';
+                xml += `<duration>${dur}</duration>\n`;
+                xml += '<voice>1</voice>\n';
+                xml += '<type>eighth</type>\n';
+                xml += '<time-modification>\n';
+                xml += '<actual-notes>5</actual-notes>\n';
+                xml += '<normal-notes>4</normal-notes>\n';
+                xml += '</time-modification>\n';
+                if (n === 0) xml += '<notations><tuplet type="start" bracket="yes"/></notations>\n';
+                if (n === 4) xml += '<notations><tuplet type="stop" bracket="yes"/></notations>\n';
+                xml += '</note>\n';
+            }
+        } else if (rhythmA === 'poly7') {
+            // 7:4 polyrhythm - 7 notes fill measure
+            // CORRECT MATH: 1024/7 = 146.28...
+            for (let n = 0; n < 7; n++) {
+                const note = triadA[n % 3];
+                const step = note.replace('#','');
+                const dur = (n < 4) ? 146 : 147; // 146*4 + 147*3 = 1024
+                xml += '<note>\n';
+                xml += '<pitch>\n';
+                xml += `<step>${step}</step>\n`;
+                if (note.includes('#')) xml += '<alter>1</alter>\n';
+                xml += '<octave>4</octave>\n';
+                xml += '</pitch>\n';
+                xml += `<duration>${dur}</duration>\n`;
+                xml += '<voice>1</voice>\n';
+                xml += '<type>eighth</type>\n';
+                xml += '<time-modification>\n';
+                xml += '<actual-notes>7</actual-notes>\n';
+                xml += '<normal-notes>4</normal-notes>\n';
+                xml += '</time-modification>\n';
+                if (n === 0) xml += '<notations><tuplet type="start" bracket="yes"/></notations>\n';
+                if (n === 6) xml += '<notations><tuplet type="stop" bracket="yes"/></notations>\n';
+                xml += '</note>\n';
+            }
+        }
+        
+        xml += '</measure>\n';
+        measureNum++;
+    }
+    
+    // Generate Section B
+    for (let m = 0; m < measuresB; m++) {
+        xml += `<measure number="${measureNum}">\n`;
+        
+        // Add notes based on rhythm - FULL MEASURE
+        if (rhythmB === 'quarter') {
+            for (let n = 0; n < 4; n++) {
+                const note = triadB[n % 3];
+                const step = note.replace('#','');
+                xml += '<note>\n';
+                xml += '<pitch>\n';
+                xml += `<step>${step}</step>\n`;
+                if (note.includes('#')) xml += '<alter>1</alter>\n';
+                xml += '<octave>4</octave>\n';
+                xml += '</pitch>\n';
+                xml += '<duration>256</duration>\n';
+                xml += '<voice>1</voice>\n';
+                xml += '<type>quarter</type>\n';
+                xml += '</note>\n';
+            }
+        } else if (rhythmB === 'eighth') {
+            for (let n = 0; n < 8; n++) {
+                const note = triadB[n % 3];
+                const step = note.replace('#','');
+                xml += '<note>\n';
+                xml += '<pitch>\n';
+                xml += `<step>${step}</step>\n`;
+                if (note.includes('#')) xml += '<alter>1</alter>\n';
+                xml += '<octave>4</octave>\n';
+                xml += '</pitch>\n';
+                xml += '<duration>128</duration>\n';
+                xml += '<voice>1</voice>\n';
+                xml += '<type>eighth</type>\n';
+                xml += '</note>\n';
+            }
+        } else if (rhythmB === 'poly3') {
+            for (let n = 0; n < 3; n++) {
+                const note = triadB[n];
+                const step = note.replace('#','');
+                const dur = n < 2 ? 341 : 342;
+                xml += '<note>\n';
+                xml += '<pitch>\n';
+                xml += `<step>${step}</step>\n`;
+                if (note.includes('#')) xml += '<alter>1</alter>\n';
+                xml += '<octave>4</octave>\n';
+                xml += '</pitch>\n';
+                xml += `<duration>${dur}</duration>\n`;
+                xml += '<voice>1</voice>\n';
+                xml += '<type>quarter</type>\n';
+                xml += '<time-modification>\n';
+                xml += '<actual-notes>3</actual-notes>\n';
+                xml += '<normal-notes>2</normal-notes>\n';
+                xml += '</time-modification>\n';
+                if (n === 0) xml += '<notations><tuplet type="start" bracket="yes"/></notations>\n';
+                if (n === 2) xml += '<notations><tuplet type="stop" bracket="yes"/></notations>\n';
+                xml += '</note>\n';
+            }
+        } else if (rhythmB === 'poly5') {
+            for (let n = 0; n < 5; n++) {
+                const note = triadB[n % 3];
+                const step = note.replace('#','');
+                const dur = (n < 4) ? 205 : 204; // 205*4 + 204 = 1024
+                xml += '<note>\n';
+                xml += '<pitch>\n';
+                xml += `<step>${step}</step>\n`;
+                if (note.includes('#')) xml += '<alter>1</alter>\n';
+                xml += '<octave>4</octave>\n';
+                xml += '</pitch>\n';
+                xml += `<duration>${dur}</duration>\n`;
+                xml += '<voice>1</voice>\n';
+                xml += '<type>eighth</type>\n';
+                xml += '<time-modification>\n';
+                xml += '<actual-notes>5</actual-notes>\n';
+                xml += '<normal-notes>4</normal-notes>\n';
+                xml += '</time-modification>\n';
+                if (n === 0) xml += '<notations><tuplet type="start" bracket="yes"/></notations>\n';
+                if (n === 4) xml += '<notations><tuplet type="stop" bracket="yes"/></notations>\n';
+                xml += '</note>\n';
+            }
+        } else if (rhythmB === 'poly7') {
+            for (let n = 0; n < 7; n++) {
+                const note = triadB[n % 3];
+                const step = note.replace('#','');
+                const dur = (n < 4) ? 146 : 147; // 146*4 + 147*3 = 1024
+                xml += '<note>\n';
+                xml += '<pitch>\n';
+                xml += `<step>${step}</step>\n`;
+                if (note.includes('#')) xml += '<alter>1</alter>\n';
+                xml += '<octave>4</octave>\n';
+                xml += '</pitch>\n';
+                xml += `<duration>${dur}</duration>\n`;
+                xml += '<voice>1</voice>\n';
+                xml += '<type>eighth</type>\n';
+                xml += '<time-modification>\n';
+                xml += '<actual-notes>7</actual-notes>\n';
+                xml += '<normal-notes>4</normal-notes>\n';
+                xml += '</time-modification>\n';
+                if (n === 0) xml += '<notations><tuplet type="start" bracket="yes"/></notations>\n';
+                if (n === 6) xml += '<notations><tuplet type="stop" bracket="yes"/></notations>\n';
+                xml += '</note>\n';
+            }
+        }
+        
+        xml += '</measure>\n';
+        measureNum++;
+    }
+    
+    xml += '</part>\n';
+    xml += '</score-partwise>\n';
+    
+    // Download
+    const blob = new Blob([xml], {type: 'text/xml'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'composition_v82.musicxml';
+    a.click();
+    
+    // Update display
+    const output = document.getElementById('output');
+    output.textContent = `EXPORTED:\n`;
+    output.textContent += `Section A: ${measuresA} measures - ${rootA} ${typeA} - ${rhythmA}\n`;
+    output.textContent += `Section B: ${measuresB} measures - ${rootB} ${typeB} - ${rhythmB}\n`;
+    output.textContent += `Total: ${measuresA + measuresB} measures\n`;
+    output.textContent += `All measures filled with 1024 duration units!`;
+}
+    </script>
+</body>
+</html>

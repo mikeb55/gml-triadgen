@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chord & Triad Pair Viewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #fff;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 0 0 20px rgba(100, 200, 255, 0.5);
+        }
+        
+        .controls {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .control-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        label {
+            color: #64b5f6;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        select, button {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        select:hover, button:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #64b5f6;
+            transform: translateY(-2px);
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        button:active {
+            transform: scale(0.98);
+        }
+        
+        .display-area {
+            display: grid;
+            gap: 30px;
+        }
+        
+        .chord-display {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .chord-title {
+            font-size: 1.8rem;
+            color: #64b5f6;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .notes-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .note {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            border-radius: 50%;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 4px 15px rgba(100, 200, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .note:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(100, 200, 255, 0.5);
+        }
+        
+        .note.common {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .triad-pairs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .triad-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(100, 200, 255, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        .triad-label {
+            color: #9c88ff;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .formula-display {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            color: #4fc3f7;
+        }
+        
+        .piano-keys {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            height: 120px;
+            position: relative;
+        }
+        
+        .white-key {
+            width: 40px;
+            height: 120px;
+            background: white;
+            border: 1px solid #333;
+            margin: 0 1px;
+            cursor: pointer;
+            transition: background 0.3s;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .white-key.active {
+            background: linear-gradient(to bottom, #64b5f6, #2196f3);
+        }
+        
+        .black-key {
+            width: 25px;
+            height: 70px;
+            background: #333;
+            position: absolute;
+            cursor: pointer;
+            z-index: 2;
+            transition: background 0.3s;
+        }
+        
+        .black-key.active {
+            background: linear-gradient(to bottom, #9c88ff, #6c5ce7);
+        }
+        
+        .info-panel {
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 4px solid #64b5f6;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .info-title {
+            color: #64b5f6;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .button-row {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .play-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+        
+        .random-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #fc466b 0%, #3f5efb 100%);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 Chord & Triad Pair Viewer 🎵</h1>
+        
+        <div class="controls">
+            <div class="control-row">
+                <div class="control-group">
+                    <label>Root Note</label>
+                    <select id="rootNote">
+                        <option value="C">C</option>
+                        <option value="C#">C#/Db</option>
+                        <option value="D">D</option>
+                        <option value="D#">D#/Eb</option>
+                        <option value="E">E</option>
+                        <option value="F">F</option>
+                        <option value="F#">F#/Gb</option>
+                        <option value="G">G</option>
+                        <option value="G#">G#/Ab</option>
+                        <option value="A">A</option>
+                        <option value="A#">A#/Bb</option>
+                        <option value="B">B</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Chord Type</label>
+                    <select id="chordType">
+                        <option value="major">Major</option>
+                        <option value="minor">Minor</option>
+                        <option value="diminished">Diminished</option>
+                        <option value="augmented">Augmented</option>
+                        <option value="sus2">Sus2</option>
+                        <option value="sus4">Sus4</option>
+                        <option value="maj7">Major 7</option>
+                        <option value="min7">Minor 7</option>
+                        <option value="dom7">Dominant 7</option>
+                        <option value="dim7">Diminished 7</option>
+                        <option value="aug7">Augmented 7</option>
+                        <option value="minmaj7">Minor Major 7</option>
+                        <option value="6">6th</option>
+                        <option value="min6">Minor 6th</option>
+                        <option value="9">9th</option>
+                        <option value="min9">Minor 9th</option>
+                        <option value="maj9">Major 9th</option>
+                        <option value="11">11th</option>
+                        <option value="min11">Minor 11th</option>
+                        <option value="maj11">Major 11th</option>
+                        <option value="13">13th</option>
+                        <option value="min13">Minor 13th</option>
+                        <option value="maj13">Major 13th</option>
+                        <option value="add2">Add2</option>
+                        <option value="add9">Add9</option>
+                        <option value="add11">Add11</option>
+                        <option value="minadd9">Minor Add9</option>
+                        <option value="minadd11">Minor Add11</option>
+                    </select>
+                </div>
+            </div>
+            <div class="button-row">
+                <button onclick="updateDisplay()">Update Display</button>
+                <button class="random-btn" onclick="randomChord()">Random Chord</button>
+                <button class="play-btn" onclick="playChord()">▶ Play Chord</button>
+                <button class="play-btn" onclick="playTriadPair()">▶ Play Triad Pair</button>
+                <button class="play-btn" onclick="playAll()">▶ Play All</button>
+            </div>
+        </div>
+        
+        <div class="display-area">
+            <div class="chord-display">
+                <h2 class="chord-title" id="chordName">C Major</h2>
+                
+                <div class="piano-keys" id="pianoKeys"></div>
+                
+                <div class="notes-container" id="chordNotes"></div>
+                
+                <div class="formula-display" id="chordFormula">
+                    Formula: 1 - 3 - 5
+                </div>
+                
+                <div class="triad-pairs">
+                    <div class="triad-box">
+                        <div class="triad-label">Triad 1</div>
+                        <div class="notes-container" id="triad1Notes"></div>
+                        <div id="triad1Name" style="text-align: center; color: #9c88ff; margin-top: 10px;"></div>
+                    </div>
+                    <div class="triad-box">
+                        <div class="triad-label">Triad 2</div>
+                        <div class="notes-container" id="triad2Notes"></div>
+                        <div id="triad2Name" style="text-align: center; color: #9c88ff; margin-top: 10px;"></div>
+                    </div>
+                </div>
+                
+                <div class="info-panel">
+                    <div class="info-title">Triad Pair Formula:</div>
+                    <div id="triadPairFormula">Major(root) + Major(2nd)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Web Audio API setup
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // Note frequencies (A4 = 440Hz)
+        const noteFrequencies = {
+            'C': 261.63, 'C#': 277.18, 'Db': 277.18,
+            'D': 293.66, 'D#': 311.13, 'Eb': 311.13,
+            'E': 329.63, 'F': 349.23, 'F#': 369.99, 'Gb': 369.99,
+            'G': 392.00, 'G#': 415.30, 'Ab': 415.30,
+            'A': 440.00, 'A#': 466.16, 'Bb': 466.16,
+            'B': 493.88
+        };
+        
+        // Chord definitions with intervals and triad pairs
+        const chordDefinitions = {
+            'major': {
+                intervals: [0, 4, 7],
+                formula: '1 - 3 - 5',
+                triadPair: ['major', 0, 'major', 2],
+                pairFormula: 'Major(root) + Major(2nd)'
+            },
+            'minor': {
+                intervals: [0, 3, 7],
+                formula: '1 - b3 - 5',
+                triadPair: ['minor', 0, 'major', 5],
+                pairFormula: 'Minor(root) + Major(4th)'
+            },
+            'diminished': {
+                intervals: [0, 3, 6],
+                formula: '1 - b3 - b5',
+                triadPair: ['diminished', 0, 'minor', 8],
+                pairFormula: 'Dim(root) + Minor(b6)'
+            },
+            'augmented': {
+                intervals: [0, 4, 8],
+                formula: '1 - 3 - #5',
+                triadPair: ['augmented', 0, 'major', 4],
+                pairFormula: 'Aug(root) + Major(3rd)'
+            },
+            'sus2': {
+                intervals: [0, 2, 7],
+                formula: '1 - 2 - 5',
+                triadPair: ['major', 2, 'minor', 7],
+                pairFormula: 'Major(2nd) + Minor(5th)'
+            },
+            'sus4': {
+                intervals: [0, 5, 7],
+                formula: '1 - 4 - 5',
+                triadPair: ['major', 5, 'minor', 7],
+                pairFormula: 'Major(4th) + Minor(5th)'
+            },
+            'maj7': {
+                intervals: [0, 4, 7, 11],
+                formula: '1 - 3 - 5 - 7',
+                triadPair: ['major', 0, 'minor', 4],
+                pairFormula: 'Major(root) + Minor(3rd)'
+            },
+            'min7': {
+                intervals: [0, 3, 7, 10],
+                formula: '1 - b3 - 5 - b7',
+                triadPair: ['minor', 0, 'major', 8],
+                pairFormula: 'Minor(root) + Major(b6)'
+            },
+            'dom7': {
+                intervals: [0, 4, 7, 10],
+                formula: '1 - 3 - 5 - b7',
+                triadPair: ['major', 0, 'minor', 10],
+                pairFormula: 'Major(root) + Minor(b7)'
+            },
+            'dim7': {
+                intervals: [0, 3, 6, 9],
+                formula: '1 - b3 - b5 - bb7',
+                triadPair: ['diminished', 0, 'minor', 8],
+                pairFormula: 'Dim(root) + Minor(b6)'
+            },
+            'aug7': {
+                intervals: [0, 4, 8, 10],
+                formula: '1 - 3 - #5 - b7',
+                triadPair: ['augmented', 0, 'minor', 10],
+                pairFormula: 'Aug(root) + Minor(b7)'
+            },
+            'minmaj7': {
+                intervals: [0, 3, 7, 11],
+                formula: '1 - b3 - 5 - 7',
+                triadPair: ['minor', 0, 'major', 4],
+                pairFormula: 'Minor(root) + Major(3rd)'
+            },
+            '6': {
+                intervals: [0, 4, 7, 9],
+                formula: '1 - 3 - 5 - 6',
+                triadPair: ['major', 0, 'minor', 9],
+                pairFormula: 'Major(root) + Minor(6th)'
+            },
+            'min6': {
+                intervals: [0, 3, 7, 9],
+                formula: '1 - b3 - 5 - 6',
+                triadPair: ['minor', 0, 'major', 9],
+                pairFormula: 'Minor(root) + Major(6th)'
+            },
+            '9': {
+                intervals: [0, 4, 7, 10, 14],
+                formula: '1 - 3 - 5 - b7 - 9',
+                triadPair: ['major', 0, 'minor', 14],
+                pairFormula: 'Major(root) + Minor(9th)'
+            },
+            'min9': {
+                intervals: [0, 3, 7, 10, 14],
+                formula: '1 - b3 - 5 - b7 - 9',
+                triadPair: ['minor', 0, 'major', 14],
+                pairFormula: 'Minor(root) + Major(9th)'
+            },
+            'maj9': {
+                intervals: [0, 4, 7, 11, 14],
+                formula: '1 - 3 - 5 - 7 - 9',
+                triadPair: ['major', 0, 'minor', 14],
+                pairFormula: 'Major(root) + Minor(9th)'
+            },
+            '11': {
+                intervals: [0, 4, 7, 10, 14, 17],
+                formula: '1 - 3 - 5 - b7 - 9 - 11',
+                triadPair: ['major', 0, 'minor', 17],
+                pairFormula: 'Major(root) + Minor(11th)'
+            },
+            'min11': {
+                intervals: [0, 3, 7, 10, 14, 17],
+                formula: '1 - b3 - 5 - b7 - 9 - 11',
+                triadPair: ['minor', 0, 'major', 17],
+                pairFormula: 'Minor(root) + Major(11th)'
+            },
+            'maj11': {
+                intervals: [0, 4, 7, 11, 14, 17],
+                formula: '1 - 3 - 5 - 7 - 9 - 11',
+                triadPair: ['major', 0, 'minor', 17],
+                pairFormula: 'Major(root) + Minor(11th)'
+            },
+            '13': {
+                intervals: [0, 4, 7, 10, 14, 17, 21],
+                formula: '1 - 3 - 5 - b7 - 9 - 11 - 13',
+                triadPair: ['major', 0, 'minor', 21],
+                pairFormula: 'Major(root) + Minor(13th)'
+            },
+            'min13': {
+                intervals: [0, 3, 7, 10, 14, 17, 21],
+                formula: '1 - b3 - 5 - b7 - 9 - 11 - 13',
+                triadPair: ['minor', 0, 'major', 21],
+                pairFormula: 'Minor(root) + Major(13th)'
+            },
+            'maj13': {
+                intervals: [0, 4, 7, 11, 14, 17, 21],
+                formula: '1 - 3 - 5 - 7 - 9 - 11 - 13',
+                triadPair: ['major', 0, 'minor', 21],
+                pairFormula: 'Major(root) + Minor(13th)'
+            },
+            'add2': {
+                intervals: [0, 2, 4, 7],
+                formula: '1 - 2 - 3 - 5',
+                triadPair: ['major', 0, 'major', 2],
+                pairFormula: 'Major(root) + Major(2nd)'
+            },
+            'add9': {
+                intervals: [0, 4, 7, 14],
+                formula: '1 - 3 - 5 - 9',
+                triadPair: ['major', 0, 'major', 14],
+                pairFormula: 'Major(root) + Major(9th)'
+            },
+            'add11': {
+                intervals: [0, 4, 7, 17],
+                formula: '1 - 3 - 5 - 11',
+                triadPair: ['major', 0, 'major', 17],
+                pairFormula: 'Major(root) + Major(11th)'
+            },
+            'minadd9': {
+                intervals: [0, 3, 7, 14],
+                formula: '1 - b3 - 5 - 9',
+                triadPair: ['minor', 0, 'major', 14],
+                pairFormula: 'Minor(root) + Major(9th)'
+            },
+            'minadd11': {
+                intervals: [0, 3, 7, 17],
+                formula: '1 - b3 - 5 - 11',
+                triadPair: ['minor', 0, 'major', 17],
+                pairFormula: 'Minor(root) + Major(11th)'
+            }
+        };
+        
+        const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        
+        function getNoteFromInterval(root, interval) {
+            const rootIndex = noteNames.indexOf(root);
+            return noteNames[(rootIndex + interval) % 12];
+        }
+        
+        function getTriad(root, type) {
+            const intervals = type === 'major' ? [0, 4, 7] :
+                            type === 'minor' ? [0, 3, 7] :
+                            type === 'diminished' ? [0, 3, 6] :
+                            type === 'augmented' ? [0, 4, 8] : [0, 4, 7];
+            
+            return intervals.map(interval => getNoteFromInterval(root, interval));
+        }
+        
+        function createPianoKeys() {
+            const pianoKeys = document.getElementById('pianoKeys');
+            pianoKeys.innerHTML = '';
+            
+            const whiteKeys = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+            const blackKeys = {
+                'C#': 25, 'D#': 65, 'F#': 145, 'G#': 185, 'A#': 225
+            };
+            
+            // Create white keys
+            whiteKeys.forEach((note, index) => {
+                const key = document.createElement('div');
+                key.className = 'white-key';
+                key.dataset.note = note;
+                key.style.left = (index * 42) + 'px';
+                pianoKeys.appendChild(key);
+            });
+            
+            // Create black keys
+            Object.entries(blackKeys).forEach(([note, position]) => {
+                const key = document.createElement('div');
+                key.className = 'black-key';
+                key.dataset.note = note;
+                key.style.left = position + 'px';
+                pianoKeys.appendChild(key);
+            });
+        }
+        
+        function updateDisplay() {
+            const root = document.getElementById('rootNote').value;
+            const chordType = document.getElementById('chordType').value;
+            const chordDef = chordDefinitions[chordType];
+            
+            // Update chord name
+            const chordTypeDisplay = chordType.replace('maj', 'Major ')
+                                              .replace('min', 'Minor ')
+                                              .replace('dim', 'Diminished ')
+                                              .replace('aug', 'Augmented ')
+                                              .replace('dom', 'Dominant ');
+            document.getElementById('chordName').textContent = root + ' ' + chordTypeDisplay;
+            
+            // Get chord notes
+            const chordNotes = chordDef.intervals.map(interval => getNoteFromInterval(root, interval));
+            
+            // Get triad pair
+            const [triad1Type, triad1Root, triad2Type, triad2Root] = chordDef.triadPair;
+            const triad1Notes = getTriad(getNoteFromInterval(root, triad1Root), triad1Type);
+            const triad2Notes = getTriad(getNoteFromInterval(root, triad2Root), triad2Type);
+            
+            // Display chord notes
+            const chordNotesDiv = document.getElementById('chordNotes');
+            chordNotesDiv.innerHTML = '';
+            chordNotes.forEach(note => {
+                const noteDiv = document.createElement('div');
+                noteDiv.className = 'note';
+                noteDiv.textContent = note;
+                
+                // Check if note is common with triad pairs
+                if (triad1Notes.includes(note) || triad2Notes.includes(note)) {
+                    noteDiv.classList.add('common');
+                }
+                chordNotesDiv.appendChild(noteDiv);
+            });
+            
+            // Display triad 1
+            const triad1Div = document.getElementById('triad1Notes');
+            triad1Div.innerHTML = '';
+            triad1Notes.forEach(note => {
+                const noteDiv = document.createElement('div');
+                noteDiv.className = 'note';
+                if (chordNotes.includes(note)) {
+                    noteDiv.classList.add('common');
+                }
+                noteDiv.textContent = note;
+                triad1Div.appendChild(noteDiv);
+            });
+            document.getElementById('triad1Name').textContent = 
+                getNoteFromInterval(root, triad1Root) + ' ' + triad1Type.charAt(0).toUpperCase() + triad1Type.slice(1);
+            
+            // Display triad 2
+            const triad2Div = document.getElementById('triad2Notes');
+            triad2Div.innerHTML = '';
+            triad2Notes.forEach(note => {
+                const noteDiv = document.createElement('div');
+                noteDiv.className = 'note';
+                if (chordNotes.includes(note)) {
+                    noteDiv.classList.add('common');
+                }
+                noteDiv.textContent = note;
+                triad2Div.appendChild(noteDiv);
+            });
+            document.getElementById('triad2Name').textContent = 
+                getNoteFromInterval(root, triad2Root) + ' ' + triad2Type.charAt(0).toUpperCase() + triad2Type.slice(1);
+            
+            // Update formulas
+            document.getElementById('chordFormula').textContent = 'Formula: ' + chordDef.formula;
+            document.getElementById('triadPairFormula').textContent = chordDef.pairFormula;
+            
+            // Update piano keys
+            createPianoKeys();
+            const allNotes = [...new Set([...chordNotes, ...triad1Notes, ...triad2Notes])];
+            document.querySelectorAll('.white-key, .black-key').forEach(key => {
+                if (allNotes.includes(key.dataset.note)) {
+                    key.classList.add('active');
+                }
+            });
+            
+            // Store current notes for playback
+            window.currentChordNotes = chordNotes;
+            window.currentTriad1Notes = triad1Notes;
+            window.currentTriad2Notes = triad2Notes;
+        }
+        
+        function playNotes(notes, delay = 0) {
+            notes.forEach((note, index) => {
+                setTimeout(() => {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.value = noteFrequencies[note] || 440;
+                    oscillator.type = 'sine';
+                    
+                    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                    gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.01);
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 1.5);
+                    
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 1.5);
+                }, delay + (index * 100));
+            });
+        }
+        
+        function playChord() {
+            if (window.currentChordNotes) {
+                playNotes(window.currentChordNotes);
+            }
+        }
+        
+        function playTriadPair() {
+            if (window.currentTriad1Notes && window.currentTriad2Notes) {
+                playNotes(window.currentTriad1Notes, 0);
+                playNotes(window.currentTriad2Notes, 500);
+            }
+        }
+        
+        function playAll() {
+            playChord();
+            setTimeout(() => playTriadPair(), 1500);
+        }
+        
+        function randomChord() {
+            const roots = Object.keys(noteFrequencies).filter(n => !n.includes('b'));
+            const types = Object.keys(chordDefinitions);
+            
+            const randomRoot = roots[Math.floor(Math.random() * roots.length)];
+            const randomType = types[Math.floor(Math.random() * types.length)];
+            
+            document.getElementById('rootNote').value = randomRoot;
+            document.getElementById('chordType').value = randomType;
+            
+            updateDisplay();
+        }
+        
+        // Initialize on load
+        window.onload = function() {
+            createPianoKeys();
+            updateDisplay();
+        };
+    </script>
+</body>
+</html>

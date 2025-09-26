@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TriadGen v2.0 - Complete Tonality Vault System</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e0033 0%, #110022 100%);
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #9d4edd;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 10px rgba(157, 78, 221, 0.5);
+        }
+        
+        .controls-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .control-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(157, 78, 221, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        .control-section h3 {
+            margin-top: 0;
+            color: #c77dff;
+        }
+        
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            color: #e0aaff;
+            font-size: 14px;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(157, 78, 221, 0.5);
+            border-radius: 5px;
+            color: white;
+            font-size: 14px;
+        }
+        
+        select option {
+            background: #1e0033;
+            color: white;
+        }
+        
+        button {
+            padding: 12px 24px;
+            margin: 10px 5px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .btn-generate-lh {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+        }
+        
+        .btn-generate-rh {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+        }
+        
+        .btn-export {
+            background: linear-gradient(135deg, #9d4edd, #7209b7);
+            color: white;
+        }
+        
+        .btn-progression {
+            background: linear-gradient(135deg, #27ae60, #229954);
+            color: white;
+        }
+        
+        .btn-tonality {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .output-section {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .output-section h3 {
+            color: #c77dff;
+            margin-top: 0;
+        }
+        
+        .chord-display {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .voice-assignment {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .voice-box {
+            background: rgba(157, 78, 221, 0.2);
+            padding: 8px;
+            border-radius: 5px;
+            text-align: center;
+            border: 1px solid rgba(157, 78, 221, 0.5);
+        }
+        
+        .voice-label {
+            font-size: 12px;
+            color: #e0aaff;
+            margin-bottom: 5px;
+        }
+        
+        .voice-note {
+            font-size: 18px;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .tonality-vault-section {
+            background: linear-gradient(135deg, rgba(243, 156, 18, 0.1), rgba(230, 126, 34, 0.1));
+            border: 2px solid #f39c12;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎼 TriadGen v2.0 - Complete Tonality Vault System</h1>
+        
+        <div class="controls-grid">
+            <div class="control-section">
+                <h3>🎻 LH Foundation (Cello + Viola)</h3>
+                <label>Root Note:</label>
+                <select id="lh-root">
+                    <option value="C">C</option>
+                    <option value="C#">C#/Db</option>
+                    <option value="D">D</option>
+                    <option value="D#">D#/Eb</option>
+                    <option value="E">E</option>
+                    <option value="F">F</option>
+                    <option value="F#">F#/Gb</option>
+                    <option value="G">G</option>
+                    <option value="G#">G#/Ab</option>
+                    <option value="A">A</option>
+                    <option value="A#">A#/Bb</option>
+                    <option value="B">B</option>
+                </select>
+                
+                <label>Chord Type:</label>
+                <select id="lh-chord-type">
+                    <option value="maj">Major</option>
+                    <option value="min">Minor</option>
+                    <option value="dim">Diminished</option>
+                    <option value="aug">Augmented</option>
+                    <option value="maj7">Major 7</option>
+                    <option value="min7">Minor 7</option>
+                    <option value="dom7">Dominant 7</option>
+                    <option value="min7b5">Half-Diminished</option>
+                </select>
+                
+                <button class="btn-generate-lh" onclick="generateLHTriad()">
+                    Generate LH Triad
+                </button>
+            </div>
+            
+            <div class="control-section">
+                <h3>🎻 RH Upper Structure (Violins)</h3>
+                <label>Root Note:</label>
+                <select id="rh-root">
+                    <option value="C">C</option>
+                    <option value="C#">C#/Db</option>
+                    <option value="D">D</option>
+                    <option value="D#">D#/Eb</option>
+                    <option value="E">E</option>
+                    <option value="F">F</option>
+                    <option value="F#">F#/Gb</option>
+                    <option value="G" selected>G</option>
+                    <option value="G#">G#/Ab</option>
+                    <option value="A">A</option>
+                    <option value="A#">A#/Bb</option>
+                    <option value="B">B</option>
+                </select>
+                
+                <label>Chord Type:</label>
+                <select id="rh-chord-type">
+                    <option value="maj">Major</option>
+                    <option value="min">Minor</option>
+                    <option value="dim">Diminished</option>
+                    <option value="aug">Augmented</option>
+                    <option value="maj7">Major 7</option>
+                    <option value="min7">Minor 7</option>
+                    <option value="dom7">Dominant 7</option>
+                    <option value="sus2">Sus2</option>
+                    <option value="sus4">Sus4</option>
+                </select>
+                
+                <button class="btn-generate-rh" onclick="generateRHTriad()">
+                    Generate RH Triad
+                </button>
+            </div>
+        </div>
+        
+        <div class="control-section tonality-vault-section">
+            <h3>🎹 Tonality Vault - All 29 Chord Types</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+                <div>
+                    <label>Root Note:</label>
+                    <select id="tv-root">
+                        <option value="C">C</option>
+                        <option value="C#">C#/Db</option>
+                        <option value="D">D</option>
+                        <option value="D#">D#/Eb</option>
+                        <option value="E">E</option>
+                        <option value="F">F</option>
+                        <option value="F#">F#/Gb</option>
+                        <option value="G">G</option>
+                        <option value="G#">G#/Ab</option>
+                        <option value="A">A</option>
+                        <option value="A#">A#/Bb</option>
+                        <option value="B">B</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Tonality Vault Chord Type:</label>
+                    <select id="tv-chord-type">
+                        <optgroup label="Basic Triads">
+                            <option value="Major">Major</option>
+                            <option value="Minor">Minor</option>
+                            <option value="Diminished">Diminished</option>
+                            <option value="Augmented">Augmented</option>
+                            <option value="Sus2">Sus2</option>
+                            <option value="Sus4">Sus4</option>
+                        </optgroup>
+                        <optgroup label="7th Chords">
+                            <option value="Major7">Major 7</option>
+                            <option value="Minor7">Minor 7</option>
+                            <option value="Dom7">Dominant 7</option>
+                            <option value="Dim7">Diminished 7</option>
+                            <option value="Aug7">Augmented 7</option>
+                            <option value="MinMaj7">Minor Major 7</option>
+                        </optgroup>
+                        <optgroup label="6th Chords">
+                            <option value="6th">6th</option>
+                            <option value="Min6">Minor 6th</option>
+                        </optgroup>
+                        <optgroup label="9th Chords">
+                            <option value="9th">9th</option>
+                            <option value="Min9">Minor 9th</option>
+                            <option value="Maj9">Major 9th</option>
+                        </optgroup>
+                        <optgroup label="11th Chords">
+                            <option value="11th">11th</option>
+                            <option value="Min11">Minor 11th</option>
+                            <option value="Maj11">Major 11th</option>
+                        </optgroup>
+                        <optgroup label="13th Chords">
+                            <option value="13th">13th</option>
+                            <option value="Min13">Minor 13th</option>
+                            <option value="Maj13">Major 13th</option>
+                        </optgroup>
+                        <optgroup label="Add Chords">
+                            <option value="Add2">Add2</option>
+                            <option value="Add9">Add9</option>
+                            <option value="Add11">Add11</option>
+                            <option value="MinAdd9">Minor Add9</option>
+                            <option value="MinAdd11">Minor Add11</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <div>
+                    <label>&nbsp;</label>
+                    <button class="btn-tonality" onclick="generateFromTonalityVault()">
+                        Generate Tonality Vault Chord
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="control-section">
+            <h3>🎵 Progression Controls</h3>
+            <button class="btn-progression" onclick="generateProgression(4)">Generate 4-Bar</button>
+            <button class="btn-progression" onclick="generateProgression(8)">Generate 8-Bar</button>
+            <button class="btn-export" onclick="exportMusicXML()">📄 Export MusicXML</button>
+        </div>
+        
+        <div class="output-section">
+            <h3>Current Voicing</h3>
+            <div id="current-voicing" class="chord-display">
+                <div class="voice-assignment">
+                    <div class="voice-box">
+                        <div class="voice-label">Cello</div>
+                        <div class="voice-note" id="cello-note">-</div>
+                    </div>
+                    <div class="voice-box">
+                        <div class="voice-label">Viola</div>
+                        <div class="voice-note" id="viola-note">-</div>
+                    </div>
+                    <div class="voice-box">
+                        <div class="voice-label">Violin II</div>
+                        <div class="voice-note" id="vln2-note">-</div>
+                    </div>
+                    <div class="voice-box">
+                        <div class="voice-label">Violin I</div>
+                        <div class="voice-note" id="vln1-note">-</div>
+                    </div>
+                </div>
+            </div>
+            <div id="composite-analysis"></div>
+        </div>
+        
+        <div class="output-section">
+            <h3>Generated Progression</h3>
+            <div id="progression-output"></div>
+        </div>
+    </div>
+
+    <script>
+        // Complete Tonality Vault - All 29 Chord Types with Triad Pair Formulas
+        const tonalityVaultFormulas = {
+            // Basic Triads
+            'Major': { lh: ['maj', 0], rh: ['maj', 2] },           // C maj + D maj
+            'Minor': { lh: ['min', 0], rh: ['maj', 5] },           // C min + F maj
+            'Diminished': { lh: ['dim', 0], rh: ['min', 8] },      // C dim + Ab min
+            'Augmented': { lh: ['aug', 0], rh: ['maj', 4] },       // C aug + E maj
+            'Sus2': { lh: ['maj', 2], rh: ['min', 7] },            // D maj + G min
+            'Sus4': { lh: ['maj', 5], rh: ['min', 7] },            // F maj + G min
+            
+            // 7th Chords
+            'Major7': { lh: ['maj', 0], rh: ['min', 4] },          // C maj + E min
+            'Minor7': { lh: ['min', 0], rh: ['maj', 8] },          // C min + Ab maj
+            'Dom7': { lh: ['maj', 0], rh: ['min', 10] },           // C maj + Bb min
+            'Dim7': { lh: ['dim', 0], rh: ['min', 8] },            // C dim + Ab min
+            'Aug7': { lh: ['aug', 0], rh: ['min', 10] },           // C aug + Bb min
+            'MinMaj7': { lh: ['min', 0], rh: ['maj', 4] },         // C min + E maj
+            
+            // 6th Chords
+            '6th': { lh: ['maj', 0], rh: ['min', 9] },             // C maj + A min
+            'Min6': { lh: ['min', 0], rh: ['maj', 9] },            // C min + A maj
+            
+            // 9th Chords
+            '9th': { lh: ['maj', 0], rh: ['min', 2] },             // C maj + D min
+            'Min9': { lh: ['min', 0], rh: ['maj', 2] },            // C min + D maj
+            'Maj9': { lh: ['maj', 0], rh: ['min', 2] },            // C maj + D min
+            
+            // 11th Chords
+            '11th': { lh: ['maj', 0], rh: ['min', 5] },            // C maj + F min
+            'Min11': { lh: ['min', 0], rh: ['maj', 5] },           // C min + F maj
+            'Maj11': { lh: ['maj', 0], rh: ['min', 5] },           // C maj + F min
+            
+            // 13th Chords
+            '13th': { lh: ['maj', 0], rh: ['min', 9] },            // C maj + A min
+            'Min13': { lh: ['min', 0], rh: ['maj', 9] },           // C min + A maj
+            'Maj13': { lh: ['maj', 0], rh: ['min', 9] },           // C maj + A min
+            
+            // Add Chords
+            'Add2': { lh: ['maj', 0], rh: ['maj', 2] },            // C maj + D maj
+            'Add9': { lh: ['maj', 0], rh: ['maj', 2] },            // C maj + D maj
+            'Add11': { lh: ['maj', 0], rh: ['maj', 5] },           // C maj + F maj
+            'MinAdd9': { lh: ['min', 0], rh: ['maj', 2] },         // C min + D maj
+            'MinAdd11': { lh: ['min', 0], rh: ['maj', 5] }         // C min + F maj
+        };
+        
+        // Chord formulas for basic generation
+        const chordFormulas = {
+            'maj': [0, 4, 7],
+            'min': [0, 3, 7],
+            'dim': [0, 3, 6],
+            'aug': [0, 4, 8],
+            'maj7': [0, 4, 7, 11],
+            'min7': [0, 3, 7, 10],
+            'dom7': [0, 4, 7, 10],
+            'min7b5': [0, 3, 6, 10],
+            'dim7': [0, 3, 6, 9],
+            'sus2': [0, 2, 7],
+            'sus4': [0, 5, 7]
+        };
+        
+        const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        
+        let currentProgression = [];
+        let currentLHTriad = null;
+        let currentRHTriad = null;
+        
+        function noteToMidi(noteName) {
+            const noteMap = {'C': 0, 'C#': 1, 'D': 2, 'D#': 3, 'E': 4, 'F': 5, 
+                            'F#': 6, 'G': 7, 'G#': 8, 'A': 9, 'A#': 10, 'B': 11};
+            const match = noteName.match(/([A-G]#?)(\d)/);
+            if (!match) return 60;
+            const pitch = noteMap[match[1]] || 0;
+            const octave = parseInt(match[2]);
+            return (octave + 1) * 12 + pitch;
+        }
+        
+        function midiToNote(midi) {
+            const octave = Math.floor(midi / 12) - 1;
+            const pitch = midi % 12;
+            return noteNames[pitch] + octave;
+        }
+        
+        function generateTriadNotes(root, chordType) {
+            const rootIndex = noteNames.indexOf(root);
+            const intervals = chordFormulas[chordType] || [0, 4, 7];
+            return intervals.map(interval => noteNames[(rootIndex + interval) % 12]);
+        }
+        
+        function generateLHTriad() {
+            const root = document.getElementById('lh-root').value;
+            const chordType = document.getElementById('lh-chord-type').value;
+            const notes = generateTriadNotes(root, chordType);
+            
+            currentLHTriad = {
+                root: root,
+                type: chordType,
+                notes: notes,
+                cello: root + '3',
+                viola: notes[2] + '3'
+            };
+            
+            updateDisplay();
+        }
+        
+        function generateRHTriad() {
+            const root = document.getElementById('rh-root').value;
+            const chordType = document.getElementById('rh-chord-type').value;
+            const notes = generateTriadNotes(root, chordType);
+            
+            currentRHTriad = {
+                root: root,
+                type: chordType,
+                notes: notes,
+                violin2: notes[0] + '4',
+                violin1: notes[2] + '5'
+            };
+            
+            updateDisplay();
+        }
+        
+        function generateFromTonalityVault() {
+            const rootNote = document.getElementById('tv-root').value;
+            const chordType = document.getElementById('tv-chord-type').value;
+            const formula = tonalityVaultFormulas[chordType];
+            
+            if (!formula) {
+                console.log('Chord type not found in Tonality Vault');
+                return;
+            }
+            
+            // Calculate the root for the second triad based on interval
+            const rootIndex = noteNames.indexOf(rootNote);
+            const secondRootIndex = (rootIndex + formula.rh[1]) % 12;
+            const secondRoot = noteNames[secondRootIndex];
+            
+            // Generate both triads
+            const lhNotes = generateTriadNotes(rootNote, formula.lh[0]);
+            const rhNotes = generateTriadNotes(secondRoot, formula.rh[0]);
+            
+            // Update the current triads with proper voicing
+            currentLHTriad = {
+                root: rootNote,
+                type: formula.lh[0],
+                notes: lhNotes,
+                cello: rootNote + '3',
+                viola: lhNotes[1] + '3'  // Use second note for viola
+            };
+            
+            currentRHTriad = {
+                root: secondRoot,
+                type: formula.rh[0],
+                notes: rhNotes,
+                violin2: rhNotes[0] + '4',
+                violin1: rhNotes[2] + '5'
+            };
+            
+            updateDisplay();
+            
+            // Update the analysis to show the Tonality Vault formula
+            document.getElementById('composite-analysis').innerHTML = 
+                `<strong>Tonality Vault ${chordType}:</strong><br>
+                Formula: ${rootNote} ${formula.lh[0]} + ${secondRoot} ${formula.rh[0]}<br>
+                Result: ${rootNote}${chordType}`;
+        }
+        
+        function updateDisplay() {
+            if (currentLHTriad) {
+                document.getElementById('cello-note').textContent = currentLHTriad.cello;
+                document.getElementById('viola-note').textContent = currentLHTriad.viola;
+            }
+            
+            if (currentRHTriad) {
+                document.getElementById('vln2-note').textContent = currentRHTriad.violin2;
+                document.getElementById('vln1-note').textContent = currentRHTriad.violin1;
+            }
+            
+            if (currentLHTriad && currentRHTriad && !document.getElementById('composite-analysis').innerHTML.includes('Tonality Vault')) {
+                const composite = analyzeComposite(currentLHTriad, currentRHTriad);
+                document.getElementById('composite-analysis').innerHTML = 
+                    `<strong>Composite:</strong> ${composite}`;
+            }
+        }
+        
+        function analyzeComposite(lh, rh) {
+            // Analyze the resulting composite chord
+            const allNotes = [...new Set([...lh.notes, ...rh.notes])];
+            
+            // Check for common jazz chords based on triad pairs
+            if (lh.root === 'C' && rh.root === 'D' && lh.type === 'maj' && rh.type === 'maj') return 'CMaj9/Add2';
+            if (lh.root === 'C' && rh.root === 'E' && lh.type === 'maj' && rh.type === 'min') return 'CMaj7';
+            if (lh.root === 'C' && rh.root === 'G' && lh.type === 'maj' && rh.type === 'maj') return 'CMaj9';
+            if (lh.root === 'C' && rh.root === 'A' && lh.type === 'maj' && rh.type === 'min') return 'C6/CMaj13';
+            
+            return `${lh.root}${lh.type} / ${rh.root}${rh.type}`;
+        }
+        
+        function generateProgression(bars) {
+            currentProgression = [];
+            
+            // Use Tonality Vault formulas for progressions
+            const progressionTemplates = {
+                4: [
+                    { chord: 'Major7', root: 'C' },
+                    { chord: 'Minor7', root: 'A' },
+                    { chord: 'Minor7', root: 'D' },
+                    { chord: 'Dom7', root: 'G' }
+                ],
+                8: [
+                    { chord: 'Major7', root: 'C' },
+                    { chord: 'Minor7', root: 'A' },
+                    { chord: 'Minor7', root: 'D' },
+                    { chord: 'Dom7', root: 'G' },
+                    { chord: 'Minor7', root: 'E' },
+                    { chord: 'Minor7', root: 'A' },
+                    { chord: 'Minor7', root: 'D' },
+                    { chord: 'Dom7', root: 'G' }
+                ]
+            };
+            
+            const template = progressionTemplates[bars] || progressionTemplates[4];
+            
+            template.forEach((item, i) => {
+                const formula = tonalityVaultFormulas[item.chord];
+                const rootIndex = noteNames.indexOf(item.root);
+                const secondRootIndex = (rootIndex + formula.rh[1]) % 12;
+                const secondRoot = noteNames[secondRootIndex];
+                
+                const lhNotes = generateTriadNotes(item.root, formula.lh[0]);
+                const rhNotes = generateTriadNotes(secondRoot, formula.rh[0]);
+                
+                currentProgression.push({
+                    measure: i + 1,
+                    chordName: item.root + item.chord,
+                    lh: {
+                        root: item.root,
+                        type: formula.lh[0],
+                        notes: lhNotes,
+                        cello: item.root + '3',
+                        viola: lhNotes[1] + '3'
+                    },
+                    rh: {
+                        root: secondRoot,
+                        type: formula.rh[0],
+                        notes: rhNotes,
+                        violin2: rhNotes[0] + '4',
+                        violin1: rhNotes[2] + '5'
+                    }
+                });
+            });
+            
+            displayProgression();
+        }
+        
+        function displayProgression() {
+            let html = '';
+            currentProgression.forEach(bar => {
+                html += `
+                    <div class="chord-display">
+                        <strong>Measure ${bar.measure}: ${bar.chordName}</strong><br>
+                        LH: ${bar.lh.root} ${bar.lh.type} (${bar.lh.notes.join('-')}) | 
+                        RH: ${bar.rh.root} ${bar.rh.type} (${bar.rh.notes.join('-')})<br>
+                        Cello: ${bar.lh.cello} | Viola: ${bar.lh.viola} | 
+                        Vln II: ${bar.rh.violin2} | Vln I: ${bar.rh.violin1}
+                    </div>
+                `;
+            });
+            document.getElementById('progression-output').innerHTML = html;
+        }
+        
+        function exportMusicXML() {
+            if (!currentProgression.length) {
+                alert('Please generate a progression first!');
+                return;
+            }
+            
+            let xml = `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.1 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">
+<score-partwise version="3.1">
+  <work><work-title>TriadGen Tonality Vault Composition</work-title></work>
+  <identification>
+    <creator type="composer">TriadGen v2.0 - Tonality Vault</creator>
+    <encoding><software>TriadGen Polytonal Engine</software></encoding>
+  </identification>
+  <part-list>
+    <score-part id="P1">
+      <part-name>Violin I</part-name>
+      <score-instrument id="P1-I1">
+        <instrument-name>Violin I</instrument-name>
+      </score-instrument>
+      <midi-instrument id="P1-I1">
+        <midi-channel>1</midi-channel>
+        <midi-program>41</midi-program>
+      </midi-instrument>
+    </score-part>
+    <score-part id="P2">
+      <part-name>Violin II</part-name>
+      <score-instrument id="P2-I1">
+        <instrument-name>Violin II</instrument-name>
+      </score-instrument>
+      <midi-instrument id="P2-I1">
+        <midi-channel>2</midi-channel>
+        <midi-program>41</midi-program>
+      </midi-instrument>
+    </score-part>
+    <score-part id="P3">
+      <part-name>Viola</part-name>
+      <score-instrument id="P3-I1">
+        <instrument-name>Viola</instrument-name>
+      </score-instrument>
+      <midi-instrument id="P3-I1">
+        <midi-channel>3</midi-channel>
+        <midi-program>42</midi-program>
+      </midi-instrument>
+    </score-part>
+    <score-part id="P4">
+      <part-name>Cello</part-name>
+      <score-instrument id="P4-I1">
+        <instrument-name>Cello</instrument-name>
+      </score-instrument>
+      <midi-instrument id="P4-I1">
+        <midi-channel>4</midi-channel>
+        <midi-program>43</midi-program>
+      </midi-instrument>
+    </score-part>
+  </part-list>`;
+            
+            // Generate parts with actual notes from triad pairs
+            const parts = [
+                { id: 'P1', clef: { sign: 'G', line: 2 }, getNote: (bar) => bar.rh.violin1 },
+                { id: 'P2', clef: { sign: 'G', line: 2 }, getNote: (bar) => bar.rh.violin2 },
+                { id: 'P3', clef: { sign: 'C', line: 3 }, getNote: (bar) => bar.lh.viola },
+                { id: 'P4', clef: { sign: 'F', line: 4 }, getNote: (bar) => bar.lh.cello }
+            ];
+            
+            parts.forEach(part => {
+                xml += `\n  <part id="${part.id}">`;
+                
+                currentProgression.forEach((bar, measureIndex) => {
+                    xml += `\n    <measure number="${measureIndex + 1}">`;
+                    
+                    if (measureIndex === 0) {
+                        xml += `
+      <attributes>
+        <divisions>1</divisions>
+        <key><fifths>0</fifths></key>
+        <time><beats>4</beats><beat-type>4</beat-type></time>
+        <clef>
+          <sign>${part.clef.sign}</sign>
+          <line>${part.clef.line}</line>
+        </clef>
+      </attributes>`;
+                        
+                        // Add harmony/chord symbol on first part
+                        if (part.id === 'P1') {
+                            xml += `
+      <harmony>
+        <root>
+          <root-step>${bar.chordName[0]}</root-step>
+        </root>
+        <kind text="${bar.chordName.substring(1)}">${bar.chordName.includes('7') ? 'major-seventh' : 'major'}</kind>
+      </harmony>`;
+                        }
+                    }
+                    
+                    // Get the actual note for this instrument
+                    const noteStr = part.getNote(bar);
+                    
+                    // Parse note (e.g., "C#4" -> step: C, alter: 1, octave: 4)
+                    const noteMatch = noteStr.match(/([A-G])(#?)(\d)/);
+                    if (noteMatch) {
+                        const step = noteMatch[1];
+                        const alter = noteMatch[2] === '#' ? 1 : 0;
+                        const octave = noteMatch[3];
+                        
+                        xml += `
+      <note>
+        <pitch>
+          <step>${step}</step>
+          ${alter ? `<alter>${alter}</alter>` : ''}
+          <octave>${octave}</octave>
+        </pitch>
+        <duration>4</duration>
+        <type>whole</type>
+      </note>`;
+                    }
+                    
+                    xml += `\n    </measure>`;
+                });
+                
+                xml += `\n  </part>`;
+            });
+            
+            xml += '\n</score-partwise>';
+            
+            // Download the file
+            const blob = new Blob([xml], {type: 'text/xml'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'triadgen-tonality-vault.musicxml';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        // Initialize with a demo
+        window.onload = function() {
+            // Set initial Tonality Vault chord
+            document.getElementById('tv-chord-type').value = 'Major7';
+            generateFromTonalityVault();
+        };
+    </script>
+</body>
+</html>
