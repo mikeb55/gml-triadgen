@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head><title>Profile Test</title></head>
+<body>
+    <h1>Testing Profile Load</h1>
+    <div id="result">Loading...</div>
+    
+    <script src="profile-loader.js"></script>
+    <script>
+        loadProfiles().then(profiles => {
+            if (profiles && Object.keys(profiles).length > 0) {
+                document.getElementById('result').innerHTML = 
+                    '<h2 style="color:green">SUCCESS!</h2>' +
+                    '<p>Loaded ' + Object.keys(profiles).length + ' profiles</p>' +
+                    '<p>Profiles found: ' + Object.keys(profiles).slice(0,5).join(', ') + '...</p>';
+            } else {
+                document.getElementById('result').innerHTML = 
+                    '<h2 style="color:red">No profiles loaded</h2>';
+            }
+        }).catch(err => {
+            document.getElementById('result').innerHTML = 
+                '<h2 style="color:red">ERROR: ' + err + '</h2>';
+        });
+    </script>
+</body>
+</html>

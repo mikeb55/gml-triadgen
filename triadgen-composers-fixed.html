@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TriadGen with Composers</title>
+    <style>
+        body { 
+            font-family: Arial; 
+            padding: 20px; 
+            background: linear-gradient(135deg, #667eea, #764ba2); 
+        }
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 10px; 
+        }
+        select, button { 
+            padding: 10px; 
+            margin: 5px; 
+            font-size: 16px; 
+        }
+        #output { 
+            margin-top: 20px; 
+            padding: 15px; 
+            background: #f0f0f0; 
+            border-radius: 5px; 
+            min-height: 200px;
+        }
+        .triad {
+            display: inline-block;
+            margin: 10px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .note {
+            display: inline-block;
+            padding: 5px 10px;
+            margin: 2px;
+            background: #667eea;
+            color: white;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎹 TriadGen - Composer Profiles</h1>
+        
+        <div>
+            <label>Select Composer/Style:</label><br>
+            <select id="composerSelect" style="width: 300px;">
+                <option>Loading composers...</option>
+            </select>
+            <button onclick="generateTriads()">Generate Triads</button>
+        </div>
+        
+        <div id="output">Select a composer and click Generate to create triads in their style</div>
+    </div>
+
+    <script src="profile-loader.js"></script>
+    <script>
+        let allProfiles = {};
+        
+        // Load profiles
+        loadProfiles().then(profiles => {
+            allProfiles = profiles;
+            const select = document.getElementById('composerSelect');
+            select.innerHTML = '';
+            
+            // Group by category
+            const categories = {};
+            Object.keys(profiles).forEach(name => {
+                const cat = profiles[name].category || 'Other';
+                if (!categories[cat]) categories[cat] = [];
+                categories[cat].push(name);
+            });
+            
+            // Add to dropdown
+            Object.keys(categories).sort().forEach(cat => {
+                const group = document.createElement('optgroup');
+                group.label = cat;
+                categories[cat].forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    group.appendChild(option);
+                });
+                select.appendChild(group);
+            });
+            
+            console.log('Loaded ' + Object.keys(profiles).length + ' profiles');
+        });
+        
+        // Generate triads based on profile
+        function generateTriads() {
+            const selected = document.getElementById('composerSelect').value;
+            const profile = allProfiles[selected];
+            
+            if (!profile) {
+                document.getElementById('output').innerHTML = 'Please select a composer';
+                return;
+            }
+            
+            // Generate style-appropriate triads
+            const triads = generateStyleTriads(profile);
+            
+            // Display output
+            let html = `<h3>${selected}</h3>`;
+            html += `<p><strong>Style:</strong> ${profile.category}</p>`;
+            html += `<p><strong>Techniques:</strong> ${profile.techniques.join(', ')}</p>`;
+            html += `<h4>Generated Triads:</h4>`;
+            
+            triads.forEach((triad, i) => {
+                html += `<div class="triad">`;
+                html += `<strong>Triad ${i+1}:</strong><br>`;
+                triad.forEach(note => {
+                    html += `<span class="note">${note}</span>`;
+                });
+                html += `</div>`;
+            });
+            
+            document.getElementById('output').innerHTML = html;
+        }
+        
+        // Generate triads based on style
+        function generateStyleTriads(profile) {
+            const notes = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+            const triads = [];
+            
+            // Different generation based on category
+            switch(profile.category) {
+                case 'Jazz':
+                    // Jazz voicings - rootless, extensions
+                    triads.push(['E', 'G', 'B♭', 'D']);  // Cm9 rootless
+                    triads.push(['F', 'A', 'C', 'E']);    // Fmaj7
+                    triads.push(['B♭', 'D', 'F', 'A']);   // B♭maj7
+                    break;
+                    
+                case 'Classical':
+                    // Traditional triads
+                    triads.push(['C', 'E', 'G']);  // C major
+                    triads.push(['A', 'C', 'E']);  // A minor
+                    triads.push(['G', 'B', 'D']);  // G major
+                    break;
+                    
+                case 'Greek':
+                    // Modal triads
+                    triads.push(['D', 'F', 'A']);  // D minor
+                    triads.push(['E', 'G', 'B♭']); // E diminished
+                    triads.push(['F', 'A', 'C']);  // F major
+                    break;
+                    
+                default:
+                    // Generic triads
+                    for(let i = 0; i < 3; i++) {
+                        const root = notes[Math.floor(Math.random() * notes.length)];
+                        const third = notes[(notes.indexOf(root) + 2) % notes.length];
+                        const fifth = notes[(notes.indexOf(root) + 4) % notes.length];
+                        triads.push([root, third, fifth]);
+                    }
+            }
+            
+            return triads;
+        }
+    </script>
+</body>
+</html>
