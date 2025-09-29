@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polyrhythmic TriadGen v8.2 - Sibelius-Compliant MusicXML</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 1200px;
+            padding: 30px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1e3c72;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #2a5298;
+            margin-bottom: 30px;
+            font-size: 1.2em;
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .control-section {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .control-section h3 {
+            color: #1e3c72;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #1e3c72;
+            padding-bottom: 5px;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            border-color: #1e3c72;
+            outline: none;
+            box-shadow: 0 0 10px rgba(30, 60, 114, 0.3);
+        }
+
+        button {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(30, 60, 114, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .visualization {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .voice-display {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .voice-title {
+            font-weight: bold;
+            color: #1e3c72;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .rhythm-pattern {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(30px, 1fr));
+            gap: 5px;
+            margin-top: 10px;
+            min-height: 60px;
+        }
+
+        .beat {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            aspect-ratio: 1;
+        }
+
+        .beat.active {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .beat.tuplet {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+        }
+
+        #status {
+            text-align: center;
+            padding: 10px;
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            color: white;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        .polyrhythm-display {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 20px;
+            background: #f0f4f8;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .ratio-indicator {
+            font-size: 2em;
+            font-weight: bold;
+            color: #1e3c72;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .version-badge {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+
+        .tuplet-bracket {
+            border-top: 2px solid #1e3c72;
+            margin-top: 5px;
+            padding-top: 2px;
+            text-align: center;
+            font-size: 0.8em;
+            color: #1e3c72;
+        }
+    </style>
+</head>
+<body>
+    <div class="version-badge">v8.2</div>
+    
+    <div class="container">
+        <h1>🎵 Polyrhythmic TriadGen 🎵</h1>
+        <div class="subtitle">Sibelius-Compliant MusicXML with Advanced Polyrhythms</div>
+        
+        <div class="controls-grid">
+            <div class="control-section">
+                <h3>⏱️ Polyrhythm Settings</h3>
+                <div class="control-group">
+                    <label for="polyrhythm">Polyrhythm Ratio:</label>
+                    <select id="polyrhythm">
+                        <option value="3:2">3:2 (Triplets over Duplets)</option>
+                        <option value="4:3">4:3 (Four over Three)</option>
+                        <option value="5:4">5:4 (Quintuplets over Four)</option>
+                        <option value="6:5">6:5 (Six over Five)</option>
+                        <option value="7:6">7:6 (Seven over Six)</option>
+                        <option value="8:7">8:7 (Eight over Seven)</option>
+                        <option value="9:8">9:8 (Nine over Eight)</option>
+                        <option value="2:3">2:3 (Duplets over Triplets)</option>
+                        <option value="3:4">3:4 (Three over Four)</option>
+                        <option value="5:3">5:3 (Five over Three)</option>
+                        <option value="7:4">7:4 (Seven over Four)</option>
+                        <option value="11:8">11:8 (Eleven over Eight)</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="measures">Number of Measures:</label>
+                    <input type="number" id="measures" min="1" max="100" value="4">
+                </div>
+                
+                <div class="control-group">
+                    <label for="timeSignature">Base Time Signature:</label>
+                    <select id="timeSignature">
+                        <option value="4/4">4/4</option>
+                        <option value="3/4">3/4</option>
+                        <option value="6/8">6/8</option>
+                        <option value="5/4">5/4</option>
+                        <option value="7/8">7/8</option>
+                        <option value="9/8">9/8</option>
+                        <option value="12/8">12/8</option>
+                        <option value="2/4">2/4</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="tempo">Tempo (BPM):</label>
+                    <input type="number" id="tempo" min="40" max="200" value="120">
+                </div>
+            </div>
+            
+            <div class="control-section">
+                <h3>🎹 Triad Settings</h3>
+                <div class="control-group">
+                    <label for="key">Key:</label>
+                    <select id="key">
+                        <option value="C">C Major</option>
+                        <option value="G">G Major</option>
+                        <option value="D">D Major</option>
+                        <option value="A">A Major</option>
+                        <option value="E">E Major</option>
+                        <option value="B">B Major</option>
+                        <option value="F">F Major</option>
+                        <option value="Bb">B♭ Major</option>
+                        <option value="Eb">E♭ Major</option>
+                        <option value="Ab">A♭ Major</option>
+                        <option value="Am">A Minor</option>
+                        <option value="Em">E Minor</option>
+                        <option value="Dm">D Minor</option>
+                        <option value="Gm">G Minor</option>
+                        <option value="Cm">C Minor</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="progression">Chord Progression:</label>
+                    <select id="progression">
+                        <option value="I-IV-V-I">I - IV - V - I</option>
+                        <option value="I-V-vi-IV">I - V - vi - IV</option>
+                        <option value="I-vi-IV-V">I - vi - IV - V</option>
+                        <option value="ii-V-I">ii - V - I</option>
+                        <option value="I-iii-IV-V">I - iii - IV - V</option>
+                        <option value="vi-IV-I-V">vi - IV - I - V</option>
+                        <option value="I-IV-I-V">I - IV - I - V (12 Bar Blues)</option>
+                        <option value="i-iv-v-i">i - iv - v - i (Minor)</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="voicing">Voicing Style:</label>
+                    <select id="voicing">
+                        <option value="close">Close Position</option>
+                        <option value="open">Open Position</option>
+                        <option value="drop2">Drop 2</option>
+                        <option value="quartal">Quartal</option>
+                        <option value="spread">Spread</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="density">Note Density (%):</label>
+                    <input type="range" id="density" min="20" max="100" value="80">
+                    <span id="densityValue">80%</span>
+                </div>
+            </div>
+            
+            <div class="control-section">
+                <h3>🎼 Voice Settings</h3>
+                <div class="control-group">
+                    <label for="voice1Instrument">Voice 1 (Top):</label>
+                    <select id="voice1Instrument">
+                        <option value="violin">Violin</option>
+                        <option value="flute">Flute</option>
+                        <option value="trumpet">Trumpet</option>
+                        <option value="piano">Piano (Right Hand)</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="voice2Instrument">Voice 2 (Middle):</label>
+                    <select id="voice2Instrument">
+                        <option value="viola">Viola</option>
+                        <option value="clarinet">Clarinet</option>
+                        <option value="horn">Horn</option>
+                        <option value="piano">Piano (Left Hand)</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="voice3Instrument">Voice 3 (Bass):</label>
+                    <select id="voice3Instrument">
+                        <option value="cello">Cello</option>
+                        <option value="bass">Double Bass</option>
+                        <option value="trombone">Trombone</option>
+                        <option value="bassoon">Bassoon</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label>
+                        <input type="checkbox" id="enableMetricModulation">
+                        Enable Metric Modulation
+                    </label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="polyrhythm-display">
+            <div class="ratio-indicator" id="ratioDisplay">3:2</div>
+            <div id="currentPattern">
+                <div class="voice-title">Current Pattern</div>
+                <div id="patternInfo">3 beats against 2 beats per measure</div>
+            </div>
+        </div>
+        
+        <div class="visualization">
+            <div class="voice-display">
+                <div class="voice-title">Voice 1 (Top) - Numerator</div>
+                <div class="rhythm-pattern" id="voice1Pattern"></div>
+            </div>
+            
+            <div class="voice-display">
+                <div class="voice-title">Voice 2 (Middle) - Denominator</div>
+                <div class="rhythm-pattern" id="voice2Pattern"></div>
+            </div>
+            
+            <div class="voice-display">
+                <div class="voice-title">Voice 3 (Bass) - Composite</div>
+                <div class="rhythm-pattern" id="voice3Pattern"></div>
+            </div>
+        </div>
+        
+        <div class="button-group">
+            <button onclick="generatePolyrhythm()">🎲 Generate Pattern</button>
+            <button onclick="playPolyrhythm()">▶️ Play</button>
+            <button onclick="stopPlayback()">⏹️ Stop</button>
+            <button onclick="exportMusicXML()">💾 Export MusicXML</button>
+            <button onclick="exportMIDI()">🎹 Export MIDI</button>
+            <button onclick="clearAll()">🗑️ Clear</button>
+        </div>
+        
+        <div id="status">Ready to generate polyrhythmic patterns...</div>
+    </div>
+    
+    <script>
+        // Web Audio API setup
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        let isPlaying = false;
+        let currentTimeouts = [];
+        let masterGainNode = audioContext.createGain();
+        masterGainNode.connect(audioContext.destination);
+        masterGainNode.gain.value = 0.3;
+        
+        // Pattern storage
+        let currentPatterns = {
+            voice1: [],
+            voice2: [],
+            voice3: []
+        };
+        
+        // Chord progressions
+        const chordProgressions = {
+            'I-IV-V-I': [0, 5, 7, 0],
+            'I-V-vi-IV': [0, 7, 9, 5],
+            'I-vi-IV-V': [0, 9, 5, 7],
+            'ii-V-I': [2, 7, 0, 0],
+            'I-iii-IV-V': [0, 4, 5, 7],
+            'vi-IV-I-V': [9, 5, 0, 7],
+            'I-IV-I-V': [0, 5, 0, 7],
+            'i-iv-v-i': [0, 5, 7, 0]
+        };
+        
+        // Key signatures
+        const keySignatures = {
+            'C': { root: 60, scale: [0, 2, 4, 5, 7, 9, 11], fifths: 0 },
+            'G': { root: 67, scale: [0, 2, 4, 5, 7, 9, 11], fifths: 1 },
+            'D': { root: 62, scale: [0, 2, 4, 5, 7, 9, 11], fifths: 2 },
+            'A': { root: 69, scale: [0, 2, 4, 5, 7, 9, 11], fifths: 3 },
+            'E': { root: 64, scale: [0, 2, 4, 5, 7, 9, 11], fifths: 4 },
+            'B': { root: 71, scale: [0, 2, 4, 5, 7, 9, 11], fifths: 5 },
+            'F': { root: 65, scale: [0, 2, 4, 5, 7, 9, 11], fifths: -1 },
+            'Bb': { root: 70, scale: [0, 2, 4, 5, 7, 9, 11], fifths: -2 },
+            'Eb': { root: 63, scale: [0, 2, 4, 5, 7, 9, 11], fifths: -3 },
+            'Ab': { root: 68, scale: [0, 2, 4, 5, 7, 9, 11], fifths: -4 },
+            'Am': { root: 57, scale: [0, 2, 3, 5, 7, 8, 10], fifths: 0 },
+            'Em': { root: 64, scale: [0, 2, 3, 5, 7, 8, 10], fifths: 1 },
+            'Dm': { root: 62, scale: [0, 2, 3, 5, 7, 8, 10], fifths: -1 },
+            'Gm': { root: 67, scale: [0, 2, 3, 5, 7, 8, 10], fifths: -2 },
+            'Cm': { root: 60, scale: [0, 2, 3, 5, 7, 8, 10], fifths: -3 }
+        };
+        
+        // Event listeners
+        document.getElementById('density').addEventListener('input', function(e) {
+            document.getElementById('densityValue').textContent = e.target.value + '%';
+        });
+        
+        document.getElementById('polyrhythm').addEventListener('change', updateRatioDisplay);
+        
+        function updateRatioDisplay() {
+            const ratio = document.getElementById('polyrhythm').value;
+            document.getElementById('ratioDisplay').textContent = ratio;
+            const [num, den] = ratio.split(':').map(n => parseInt(n));
+            document.getElementById('patternInfo').textContent = 
+                `${num} beats against ${den} beats per measure`;
+        }
+        
+        function generatePolyrhythm() {
+            const ratio = document.getElementById('polyrhythm').value;
+            const [numerator, denominator] = ratio.split(':').map(n => parseInt(n));
+            const measures = parseInt(document.getElementById('measures').value);
+            const timeSignature = document.getElementById('timeSignature').value;
+            const [beats, beatType] = timeSignature.split('/').map(n => parseInt(n));
+            const density = parseInt(document.getElementById('density').value) / 100;
+            const key = document.getElementById('key').value;
+            const progression = document.getElementById('progression').value;
+            const voicing = document.getElementById('voicing').value;
+            
+            // Clear previous patterns
+            currentPatterns = {
+                voice1: [],
+                voice2: [],
+                voice3: []
+            };
+            
+            const keyInfo = keySignatures[key];
+            const chordSteps = chordProgressions[progression];
+            
+            // Calculate LCM for composite rhythm
+            const lcm = (numerator * denominator) / gcd(numerator, denominator);
+            
+            // Generate patterns for each measure
+            for (let m = 0; m < measures; m++) {
+                const chordRoot = keyInfo.root + chordSteps[m % chordSteps.length];
+                const chord = generateTriad(chordRoot, keyInfo.scale, voicing);
+                
+                // Voice 1 - plays numerator rhythm (top note)
+                const voice1Measure = [];
+                for (let i = 0; i < numerator; i++) {
+                    if (Math.random() < density) {
+                        voice1Measure.push({
+                            pitch: chord[2],
+                            duration: beats / numerator,
+                            tuplet: numerator,
+                            isRest: false
+                        });
+                    } else {
+                        voice1Measure.push({
+                            pitch: null,
+                            duration: beats / numerator,
+                            tuplet: numerator,
+                            isRest: true
+                        });
+                    }
+                }
+                currentPatterns.voice1.push(voice1Measure);
+                
+                // Voice 2 - plays denominator rhythm (middle note)
+                const voice2Measure = [];
+                for (let i = 0; i < denominator; i++) {
+                    if (Math.random() < density) {
+                        voice2Measure.push({
+                            pitch: chord[1],
+                            duration: beats / denominator,
+                            tuplet: denominator,
+                            isRest: false
+                        });
+                    } else {
+                        voice2Measure.push({
+                            pitch: null,
+                            duration: beats / denominator,
+                            tuplet: denominator,
+                            isRest: true
+                        });
+                    }
+                }
+                currentPatterns.voice2.push(voice2Measure);
+                
+                // Voice 3 - plays composite rhythm (bass note)
+                const voice3Measure = [];
+                const compositeBeats = Math.min(lcm, 12); // Cap at 12 for practicality
+                for (let i = 0; i < compositeBeats; i++) {
+                    if (i % (lcm / numerator) === 0 || i % (lcm / denominator) === 0) {
+                        voice3Measure.push({
+                            pitch: chord[0],
+                            duration: beats / compositeBeats,
+                            isRest: false
+                        });
+                    } else if (Math.random() < density * 0.3) {
+                        voice3Measure.push({
+                            pitch: chord[0],
+                            duration: beats / compositeBeats,
+                            isRest: false
+                        });
+                    } else {
+                        voice3Measure.push({
+                            pitch: null,
+                            duration: beats / compositeBeats,
+                            isRest: true
+                        });
+                    }
+                }
+                currentPatterns.voice3.push(voice3Measure);
+            }
+            
+            // Update visualization
+            updateVisualization();
+            document.getElementById('status').textContent = 'Polyrhythmic pattern generated!';
+        }
+        
+        function gcd(a, b) {
+            return b === 0 ? a : gcd(b, a % b);
+        }
+        
+        function generateTriad(root, scale, voicing) {
+            const third = root + scale[2];
+            const fifth = root + scale[4];
+            
+            switch(voicing) {
+                case 'close':
+                    return [root - 12, third, fifth];
+                case 'open':
+                    return [root - 24, third, fifth + 12];
+                case 'drop2':
+                    return [root - 12, fifth, third + 12];
+                case 'quartal':
+                    return [root - 12, root + 5, root + 10];
+                case 'spread':
+                    return [root - 24, third, fifth + 12];
+                default:
+                    return [root - 12, third, fifth];
+            }
+        }
+        
+        function updateVisualization() {
+            // Voice 1 pattern
+            const voice1Div = document.getElementById('voice1Pattern');
+            voice1Div.innerHTML = '';
+            if (currentPatterns.voice1[0]) {
+                currentPatterns.voice1[0].forEach((beat, index) => {
+                    const beatDiv = document.createElement('div');
+                    beatDiv.className = beat.isRest ? 'beat' : 'beat active tuplet';
+                    beatDiv.textContent = beat.isRest ? '·' : '♪';
+                    voice1Div.appendChild(beatDiv);
+                });
+                
+                // Add tuplet bracket
+                if (currentPatterns.voice1[0][0].tuplet !== 1) {
+                    const bracket = document.createElement('div');
+                    bracket.className = 'tuplet-bracket';
+                    bracket.textContent = currentPatterns.voice1[0][0].tuplet;
+                    voice1Div.appendChild(bracket);
+                }
+            }
+            
+            // Voice 2 pattern
+            const voice2Div = document.getElementById('voice2Pattern');
+            voice2Div.innerHTML = '';
+            if (currentPatterns.voice2[0]) {
+                currentPatterns.voice2[0].forEach((beat, index) => {
+                    const beatDiv = document.createElement('div');
+                    beatDiv.className = beat.isRest ? 'beat' : 'beat active';
+                    beatDiv.textContent = beat.isRest ? '·' : '♪';
+                    voice2Div.appendChild(beatDiv);
+                });
+                
+                // Add tuplet bracket
+                if (currentPatterns.voice2[0][0].tuplet !== 1) {
+                    const bracket = document.createElement('div');
+                    bracket.className = 'tuplet-bracket';
+                    bracket.textContent = currentPatterns.voice2[0][0].tuplet;
+                    voice2Div.appendChild(bracket);
+                }
+            }
+            
+            // Voice 3 pattern
+            const voice3Div = document.getElementById('voice3Pattern');
+            voice3Div.innerHTML = '';
+            if (currentPatterns.voice3[0]) {
+                currentPatterns.voice3[0].forEach((beat, index) => {
+                    const beatDiv = document.createElement('div');
+                    beatDiv.className = beat.isRest ? 'beat' : 'beat active';
+                    beatDiv.textContent = beat.isRest ? '·' : '♪';
+                    voice3Div.appendChild(beatDiv);
+                });
+            }
+        }
+        
+        function playPolyrhythm() {
+            if (isPlaying) return;
+            if (!currentPatterns.voice1.length) {
+                generatePolyrhythm();
+            }
+            
+            isPlaying = true;
+            audioContext.resume();
+            
+            const tempo = parseInt(document.getElementById('tempo').value);
+            const beatDuration = 60 / tempo;
+            
+            let measureIndex = 0;
+            
+            function playMeasure() {
+                if (!isPlaying) return;
+                
+                document.getElementById('status').textContent = `Playing measure ${measureIndex + 1}`;
+                
+                // Schedule voice 1
+                const voice1Measure = currentPatterns.voice1[measureIndex % currentPatterns.voice1.length];
+                let voice1Time = 0;
+                voice1Measure.forEach(note => {
+                    if (!note.isRest) {
+                        playNote(note.pitch, voice1Time, note.duration * beatDuration, 'voice1');
+                    }
+                    voice1Time += note.duration * beatDuration;
+                });
+                
+                // Schedule voice 2
+                const voice2Measure = currentPatterns.voice2[measureIndex % currentPatterns.voice2.length];
+                let voice2Time = 0;
+                voice2Measure.forEach(note => {
+                    if (!note.isRest) {
+                        playNote(note.pitch, voice2Time, note.duration * beatDuration, 'voice2');
+                    }
+                    voice2Time += note.duration * beatDuration;
+                });
+                
+                // Schedule voice 3
+                const voice3Measure = currentPatterns.voice3[measureIndex % currentPatterns.voice3.length];
+                let voice3Time = 0;
+                voice3Measure.forEach(note => {
+                    if (!note.isRest) {
+                        playNote(note.pitch, voice3Time, note.duration * beatDuration, 'voice3');
+                    }
+                    voice3Time += note.duration * beatDuration;
+                });
+                
+                measureIndex++;
+                
+                if (measureIndex < parseInt(document.getElementById('measures').value)) {
+                    const measureDuration = voice1Time * 1000; // Convert to milliseconds
+                    currentTimeouts.push(setTimeout(playMeasure, measureDuration));
+                } else {
+                    stopPlayback();
+                }
+            }
+            
+            playMeasure();
+        }
+        
+        function playNote(pitch, time, duration, voice) {
+            const osc = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            osc.connect(gainNode);
+            gainNode.connect(masterGainNode);
+            
+            const frequency = 440 * Math.pow(2, (pitch - 69) / 12);
+            osc.frequency.setValueAtTime(frequency, audioContext.currentTime + time);
+            
+            // Different timbres for different voices
+            switch(voice) {
+                case 'voice1':
+                    osc.type = 'sine';
+                    gainNode.gain.value = 0.3;
+                    break;
+                case 'voice2':
+                    osc.type = 'triangle';
+                    gainNode.gain.value = 0.25;
+                    break;
+                case 'voice3':
+                    osc.type = 'square';
+                    gainNode.gain.value = 0.15;
+                    break;
+            }
+            
+            gainNode.gain.setValueAtTime(0, audioContext.currentTime + time);
+            gainNode.gain.linearRampToValueAtTime(gainNode.gain.value, audioContext.currentTime + time + 0.01);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + time + duration);
+            
+            osc.start(audioContext.currentTime + time);
+            osc.stop(audioContext.currentTime + time + duration);
+        }
+        
+        function stopPlayback() {
+            isPlaying = false;
+            currentTimeouts.forEach(timeout => clearTimeout(timeout));
+            currentTimeouts = [];
+            document.getElementById('status').textContent = 'Playback stopped';
+        }
+        
+        function clearAll() {
+            stopPlayback();
+            currentPatterns = {
+                voice1: [],
+                voice2: [],
+                voice3: []
+            };
+            document.getElementById('voice1Pattern').innerHTML = '';
+            document.getElementById('voice2Pattern').innerHTML = '';
+            document.getElementById('voice3Pattern').innerHTML = '';
+            document.getElementById('status').textContent = 'Patterns cleared';
+        }
+        
+        function exportMusicXML() {
+            if (!currentPatterns.voice1.length) {
+                generatePolyrhythm();
+            }
+            
+            const timeSignature = document.getElementById('timeSignature').value;
+            const [beats, beatType] = timeSignature.split('/').map(n => parseInt(n));
+            const tempo = document.getElementById('tempo').value;
+            const key = document.getElementById('key').value;
+            const keyInfo = keySignatures[key];
+            const ratio = document.getElementById('polyrhythm').value;
+            const [numerator, denominator] = ratio.split(':').map(n => parseInt(n));
+            
+            const pitchNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+            
+            let xml = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n';
+            xml += '<!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.1 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">\n';
+            xml += '<score-partwise version="3.1">\n';
+            xml += '  <work><work-title>Polyrhythmic Triad Study</work-title></work>\n';
+            xml += '  <identification>\n';
+            xml += '    <creator type="composer">TriadGen v8.2</creator>\n';
+            xml += '    <encoding>\n';
+            xml += '      <software>Polyrhythmic TriadGen v8.2</software>\n';
+            xml += '      <encoding-date>' + new Date().toISOString().split('T')[0] + '</encoding-date>\n';
+            xml += '    </encoding>\n';
+            xml += '  </identification>\n';
+            xml += '  <part-list>\n';
+            
+            // Define three parts
+            const instruments = [
+                { id: 'P1', name: document.getElementById('voice1Instrument').options[document.getElementById('voice1Instrument').selectedIndex].text },
+                { id: 'P2', name: document.getElementById('voice2Instrument').options[document.getElementById('voice2Instrument').selectedIndex].text },
+                { id: 'P3', name: document.getElementById('voice3Instrument').options[document.getElementById('voice3Instrument').selectedIndex].text }
+            ];
+            
+            instruments.forEach(inst => {
+                xml += `    <score-part id="${inst.id}">\n`;
+                xml += `      <part-name>${inst.name}</part-name>\n`;
+                xml += '    </score-part>\n';
+            });
+            
+            xml += '  </part-list>\n';
+            
+            // Generate parts
+            ['voice1', 'voice2', 'voice3'].forEach((voice, partIndex) => {
+                xml += `  <part id="P${partIndex + 1}">\n`;
+                
+                currentPatterns[voice].forEach((measure, measureIndex) => {
+                    xml += `    <measure number="${measureIndex + 1}">\n`;
+                    
+                    // Add attributes to first measure
+                    if (measureIndex === 0) {
+                        xml += '      <attributes>\n';
+                        xml += `        <divisions>8</divisions>\n`; // 8 divisions per quarter note for precision
+                        xml += `        <key><fifths>${keyInfo.fifths}</fifths></key>\n`;
+                        xml += `        <time><beats>${beats}</beats><beat-type>${beatType}</beat-type></time>\n`;
+                        
+                        // Set clef based on instrument
+                        const clef = partIndex === 2 ? 'F' : 'G'; // Bass clef for voice 3
+                        const line = partIndex === 2 ? '4' : '2';
+                        xml += `        <clef><sign>${clef}</sign><line>${line}</line></clef>\n`;
+                        xml += '      </attributes>\n';
+                        
+                        // Add tempo marking
+                        xml += '      <direction placement="above">\n';
+                        xml += '        <direction-type>\n';
+                        xml += `          <metronome><beat-unit>quarter</beat-unit><per-minute>${tempo}</per-minute></metronome>\n`;
+                        xml += '        </direction-type>\n';
+                        xml += '      </direction>\n';
+                    }
+                    
+                    // Check if this voice needs tuplet notation
+                    const needsTuplet = (voice === 'voice1' && numerator !== beats) || 
+                                       (voice === 'voice2' && denominator !== beats);
+                    
+                    measure.forEach((note, noteIndex) => {
+                        xml += '      <note>\n';
+                        
+                        if (note.isRest) {
+                            xml += '        <rest/>\n';
+                        } else {
+                            const octave = Math.floor(note.pitch / 12) - 1;
+                            const pitchClass = note.pitch % 12;
+                            const step = pitchNames[pitchClass].replace('#', '');
+                            const alter = pitchNames[pitchClass].includes('#') ? 1 : 0;
+                            
+                            xml += '        <pitch>\n';
+                            xml += `          <step>${step}</step>\n`;
+                            if (alter) xml += `          <alter>${alter}</alter>\n`;
+                            xml += `          <octave>${octave}</octave>\n`;
+                            xml += '        </pitch>\n';
+                        }
+                        
+                        // Calculate duration
+                        const baseDuration = 8 / note.duration; // 8 divisions per quarter
+                        xml += `        <duration>${Math.round(baseDuration)}</duration>\n`;
+                        
+                        // Add type
+                        const noteType = getNoteType(note.duration);
+                        xml += `        <type>${noteType}</type>\n`;
+                        
+                        // Add tuplet notation if needed
+                        if (needsTuplet) {
+                            if (noteIndex === 0) {
+                                xml += '        <notations>\n';
+                                xml += `          <tuplet type="start" bracket="yes" number="1">\n`;
+                                xml += `            <tuplet-actual>\n`;
+                                xml += `              <tuplet-number>${note.tuplet}</tuplet-number>\n`;
+                                xml += `            </tuplet-actual>\n`;
+                                xml += `            <tuplet-normal>\n`;
+                                xml += `              <tuplet-number>${beats}</tuplet-number>\n`;
+                                xml += `            </tuplet-normal>\n`;
+                                xml += '          </tuplet>\n';
+                                xml += '        </notations>\n';
+                            } else if (noteIndex === measure.length - 1) {
+                                xml += '        <notations>\n';
+                                xml += '          <tuplet type="stop" number="1"/>\n';
+                                xml += '        </notations>\n';
+                            }
+                        }
+                        
+                        // Add time modification for tuplets
+                        if (needsTuplet) {
+                            xml += '        <time-modification>\n';
+                            xml += `          <actual-notes>${note.tuplet}</actual-notes>\n`;
+                            xml += `          <normal-notes>${beats}</normal-notes>\n`;
+                            xml += '        </time-modification>\n';
+                        }
+                        
+                        xml += '      </note>\n';
+                    });
+                    
+                    xml += '    </measure>\n';
+                });
+                
+                xml += '  </part>\n';
+            });
+            
+            xml += '</score-partwise>';
+            
+            // Download the file
+            const blob = new Blob([xml], { type: 'application/vnd.recordare.musicxml+xml' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `polyrhythm_${ratio.replace(':', '-')}.musicxml`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            document.getElementById('status').textContent = 'MusicXML exported successfully!';
+        }
+        
+        function getNoteType(duration) {
+            if (duration >= 4) return 'whole';
+            if (duration >= 2) return 'half';
+            if (duration >= 1) return 'quarter';
+            if (duration >= 0.5) return 'eighth';
+            if (duration >= 0.25) return '16th';
+            return '32nd';
+        }
+        
+        function exportMIDI() {
+            document.getElementById('status').textContent = 'MIDI export coming soon!';
+        }
+        
+        // Initialize on load
+        window.onload = function() {
+            updateRatioDisplay();
+        };
+    </script>
+</body>
+</html>
