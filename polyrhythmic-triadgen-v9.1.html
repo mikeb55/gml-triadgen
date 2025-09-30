@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polyrhythmic TriadGen v9.1</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        .version {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .control-group {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #495057;
+            font-weight: 600;
+        }
+        select, input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 14px;
+            background: white;
+        }
+        select:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+        .generate-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 100%;
+            margin-top: 20px;
+            font-size: 18px;
+            padding: 15px;
+        }
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+        .export-btn {
+            background: #28a745;
+            color: white;
+        }
+        .export-btn:hover {
+            background: #218838;
+        }
+        .export-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .section-builder {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .section-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .section-tag {
+            background: #667eea;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .section-tag button {
+            background: rgba(255,255,255,0.3);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            padding: 0;
+            cursor: pointer;
+            font-size: 12px;
+            margin: 0;
+        }
+        .add-section-btn {
+            background: #667eea;
+            color: white;
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+        .section-config {
+            margin-top: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        .section-panel {
+            background: #fff;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+        .section-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .section-header h3 {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-letter {
+            background: rgba(255,255,255,0.2);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .section-content {
+            padding: 15px;
+            display: none;
+        }
+        .section-content.active {
+            display: block;
+        }
+        .section-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .instrument-config {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .instrument-box {
+            background: #f1f3f5;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+        }
+        .instrument-box h4 {
+            margin: 0 0 10px 0;
+            color: #495057;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .instrument-icon {
+            font-size: 16px;
+        }
+        .lead-selector {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+        }
+        .lead-selector h3 {
+            margin-top: 0;
+            color: #856404;
+        }
+        .lead-options {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .lead-options label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        .lead-options label:hover {
+            background: #ffeaa7;
+        }
+        .debug-mode {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            color: #0f0;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            display: none;
+        }
+        .debug-mode.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎼 Polyrhythmic TriadGen 🎵</h1>
+        <div class="version">Version 9.1 - Professional Edition</div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="title">Composition Title:</label>
+                <input type="text" id="title" value="Polyrhythmic Quintet" />
+            </div>
+            <div class="control-group">
+                <label for="tempo">Tempo (BPM):</label>
+                <input type="number" id="tempo" min="40" max="200" value="120" />
+            </div>
+        </div>
+
+        <div class="lead-selector">
+            <h3>🎯 Select Lead Instrument:</h3>
+            <div class="lead-options">
+                <label><input type="radio" name="lead" value="guitar" checked> 🎸 Classical Guitar</label>
+                <label><input type="radio" name="lead" value="violin"> 🎻 Violin I</label>
+                <label><input type="radio" name="lead" value="violin2"> 🎻 Violin II</label>
+                <label><input type="radio" name="lead" value="viola"> 🎻 Viola</label>
+                <label><input type="radio" name="lead" value="cello"> 🎻 Cello</label>
+            </div>
+        </div>
+
+        <div class="section-builder">
+            <h3>📐 Section Structure:</h3>
+            <button class="add-section-btn" onclick="addSection()">+ Add Section</button>
+            <div class="section-tags" id="sectionTags"></div>
+        </div>
+
+        <div class="section-config" id="sectionConfig"></div>
+
+        <button class="generate-btn" onclick="generateMusic()">🎲 Generate Composition</button>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <button class="export-btn" id="exportBtn" onclick="exportMusicXML()" disabled>
+                📥 Export MusicXML
+            </button>
+        </div>
+        
+        <div id="status"></div>
+    </div>
+
+    <div class="debug-mode" id="debugMode">DEBUG MODE</div>
+
+    <script>
+        let sections = ['A'];
+        let debugMode = false;
+        let generatedXML = '';
+
+        // Initialize with default section
+        window.onload = () => {
+            updateSectionTags();
+            updateSectionConfig();
+            
+            // Debug mode toggle
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+                    debugMode = !debugMode;
+                    document.getElementById('debugMode').classList.toggle('active');
+                }
+            });
+        };
+
+        function addSection() {
+            const nextLetter = String.fromCharCode(65 + sections.length);
+            if (sections.length < 26) {
+                sections.push(nextLetter);
+                updateSectionTags();
+                updateSectionConfig();
+            }
+        }
+
+        function removeSection(letter) {
+            if (sections.length > 1) {
+                sections = sections.filter(s => s !== letter);
+                updateSectionTags();
+                updateSectionConfig();
+            }
+        }
+
+        function updateSectionTags() {
+            const container = document.getElementById('sectionTags');
+            container.innerHTML = sections.map(letter => `
+                <div class="section-tag">
+                    Section ${letter}
+                    ${sections.length > 1 ? `<button onclick="removeSection('${letter}')">×</button>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function toggleSection(letter) {
+            const content = document.getElementById(`section-${letter}-content`);
+            content.classList.toggle('active');
+        }
+
+        function updateSectionConfig() {
+            const container = document.getElementById('sectionConfig');
+            container.innerHTML = sections.map(letter => `
+                <div class="section-panel">
+                    <div class="section-header" onclick="toggleSection('${letter}')">
+                        <h3><span class="section-letter">${letter}</span> Section Configuration</h3>
+                        <span>▼</span>
+                    </div>
+                    <div class="section-content ${letter === 'A' ? 'active' : ''}" id="section-${letter}-content">
+                        <div class="section-controls">
+                            <div>
+                                <label>Key Signature:</label>
+                                <select id="key-${letter}">
+                                    <option value="C">C Major</option>
+                                    <option value="G">G Major</option>
+                                    <option value="D">D Major</option>
+                                    <option value="A">A Major</option>
+                                    <option value="F">F Major</option>
+                                    <option value="Bb">B♭ Major</option>
+                                    <option value="Eb">E♭ Major</option>
+                                    <option value="Am">A minor</option>
+                                    <option value="Em">E minor</option>
+                                    <option value="Dm">D minor</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>Time Signature:</label>
+                                <select id="time-${letter}">
+                                    <option value="4/4">4/4</option>
+                                    <option value="3/4">3/4</option>
+                                    <option value="5/4">5/4</option>
+                                    <option value="6/8">6/8</option>
+                                    <option value="7/8">7/8</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="instrument-config">
+                            ${['guitar', 'violin', 'violin2', 'viola', 'cello'].map(inst => `
+                                <div class="instrument-box">
+                                    <h4><span class="instrument-icon">${getInstrumentIcon(inst)}</span> ${getInstrumentName(inst)}</h4>
+                                    <label>Pattern:</label>
+                                    <select id="${inst}-pattern-${letter}">
+                                        <option value="chords">Chords</option>
+                                        <option value="melody">Melody</option>
+                                        <option value="tremolo">Tremolo</option>
+                                        <option value="pizzicato">Pizzicato</option>
+                                        <option value="staccato">Staccato</option>
+                                        <option value="legato">Legato</option>
+                                        <option value="arpeggios">Arpeggios</option>
+                                        <option value="bassline">Bass Line</option>
+                                        <option value="pedal">Pedal Tone</option>
+                                        <option value="harmony">Harmony</option>
+                                    </select>
+                                    <label style="margin-top: 5px;">Polyrhythm:</label>
+                                    <select id="${inst}-poly-${letter}">
+                                        <option value="none">None</option>
+                                        <option value="3:2">3:2</option>
+                                        <option value="4:3">4:3</option>
+                                        <option value="5:4">5:4</option>
+                                        <option value="7:6">7:6</option>
+                                    </select>
+                                    <label style="margin-top: 5px;">Dynamics:</label>
+                                    <select id="${inst}-dynamics-${letter}">
+                                        <option value="pp">pp (pianissimo)</option>
+                                        <option value="p">p (piano)</option>
+                                        <option value="mp">mp (mezzo-piano)</option>
+                                        <option value="mf" selected>mf (mezzo-forte)</option>
+                                        <option value="f">f (forte)</option>
+                                        <option value="ff">ff (fortissimo)</option>
+                                    </select>
+                                    <label style="margin-top: 5px;">
+                                        <input type="checkbox" id="${inst}-rest-${letter}"> Insert Rests
+                                    </label>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getInstrumentIcon(inst) {
+            return inst === 'guitar' ? '🎸' : '🎻';
+        }
+
+        function getInstrumentName(inst) {
+            const names = {
+                'guitar': 'Classical Guitar',
+                'violin': 'Violin I',
+                'violin2': 'Violin II',
+                'viola': 'Viola',
+                'cello': 'Cello'
+            };
+            return names[inst];
+        }
+
+        function generateMusic() {
+            showStatus('Generating composition...', 'success');
+            
+            const title = document.getElementById('title').value;
+            const tempo = document.getElementById('tempo').value;
+            const leadInstrument = document.querySelector('input[name="lead"]:checked').value;
+            
+            const builder = new MusicXMLBuilder(title, tempo);
+            
+            // Create parts - new order: guitar first, then strings
+            const instruments = ['guitar', 'violin', 'violin2', 'viola', 'cello'];
+            const parts = {};
+            
+            instruments.forEach((inst, idx) => {
+                parts[inst] = builder.addPart(
+                    `P${idx + 1}`,
+                    getInstrumentName(inst),
+                    inst === 'guitar' ? 'Classical Guitar' : getInstrumentName(inst)
+                );
+            });
+            
+            // Generate sections
+            sections.forEach(sectionLetter => {
+                const key = document.getElementById(`key-${sectionLetter}`).value;
+                const timeSig = document.getElementById(`time-${sectionLetter}`).value;
+                const [beats, beatType] = timeSig.split('/').map(Number);
+                
+                instruments.forEach(inst => {
+                    const pattern = document.getElementById(`${inst}-pattern-${sectionLetter}`).value;
+                    const polyrhythm = document.getElementById(`${inst}-poly-${sectionLetter}`).value;
+                    const dynamics = document.getElementById(`${inst}-dynamics-${sectionLetter}`).value;
+                    const useRests = document.getElementById(`${inst}-rest-${sectionLetter}`).checked;
+                    const isLead = inst === leadInstrument;
+                    
+                    parts[inst].addSection(
+                        sectionLetter, key, beats, beatType,
+                        pattern, polyrhythm, dynamics, useRests, isLead
+                    );
+                });
+            });
+            
+            generatedXML = builder.generate();
+            
+            if (debugMode) {
+                console.log('Generated MusicXML:', generatedXML);
+            }
+            
+            document.getElementById('exportBtn').disabled = false;
+            showStatus('✅ Composition generated successfully!', 'success');
+        }
+
+        class MusicXMLBuilder {
+            constructor(title, tempo) {
+                this.title = title;
+                this.tempo = tempo;
+                this.parts = [];
+            }
+            
+            addPart(id, name, instrument) {
+                const part = new PartBuilder(id, name, instrument);
+                this.parts.push(part);
+                return part;
+            }
+            
+            generate() {
+                // Create unique title with timestamp for the MusicXML work-title
+                const now = new Date();
+                const timestamp = now.getFullYear() + 
+                                 String(now.getMonth() + 1).padStart(2, '0') +
+                                 String(now.getDate()).padStart(2, '0') + '-' +
+                                 String(now.getHours()).padStart(2, '0') +
+                                 String(now.getMinutes()).padStart(2, '0') +
+                                 String(now.getSeconds()).padStart(2, '0');
+                const uniqueTitle = `${this.title} - ${timestamp}`;
+                
+                let xml = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n';
+                xml += '<!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 4.0 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">\n';
+                xml += '<score-partwise version="4.0">\n';
+                xml += '  <work>\n';
+                xml += `    <work-title>${uniqueTitle}</work-title>\n`;
+                xml += '  </work>\n';
+                xml += '  <identification>\n';
+                xml += '    <creator type="composer">Mike Bryant</creator>\n';
+                xml += '    <encoding>\n';
+                xml += '      <software>Polyrhythmic TriadGen v9.1</software>\n';
+                xml += `      <encoding-date>${new Date().toISOString().split('T')[0]}</encoding-date>\n`;
+                xml += '    </encoding>\n';
+                xml += '  </identification>\n';
+                xml += '  <part-list>\n';
+                
+                this.parts.forEach(part => {
+                    xml += `    <score-part id="${part.id}">\n`;
+                    xml += `      <part-name>${part.name}</part-name>\n`;
+                    xml += `      <score-instrument id="${part.id}-I1">\n`;
+                    xml += `        <instrument-name>${part.instrument}</instrument-name>\n`;
+                    xml += '      </score-instrument>\n';
+                    xml += '    </score-part>\n';
+                });
+                
+                xml += '  </part-list>\n';
+                
+                this.parts.forEach(part => {
+                    xml += part.generateXML(this.tempo);
+                });
+                
+                xml += '</score-partwise>';
+                return xml;
+            }
+        }
+
+        class PartBuilder {
+            constructor(id, name, instrument) {
+                this.id = id;
+                this.name = name;
+                this.instrument = instrument;
+                this.sections = [];
+            }
+            
+            addSection(letter, key, beats, beatType, pattern, polyrhythm, dynamics, useRests, isLead) {
+                this.sections.push({
+                    letter, key, beats, beatType, pattern, polyrhythm, dynamics, useRests, isLead
+                });
+            }
+            
+            generateXML(tempo) {
+                let xml = `  <part id="${this.id}">\n`;
+                let measureNum = 1;
+                
+                this.sections.forEach((section, sectionIdx) => {
+                    // 4 measures per section
+                    for (let m = 0; m < 4; m++) {
+                        xml += `    <measure number="${measureNum}">\n`;
+                        
+                        // First measure of section: add attributes and rehearsal mark
+                        if (m === 0) {
+                            if (measureNum === 1) {
+                                xml += '      <attributes>\n';
+                                xml += '        <divisions>4</divisions>\n';
+                                xml += `        <key>\n`;
+                                xml += `          <fifths>${this.getKeyFifths(section.key)}</fifths>\n`;
+                                xml += '        </key>\n';
+                                xml += `        <time>\n`;
+                                xml += `          <beats>${section.beats}</beats>\n`;
+                                xml += `          <beat-type>${section.beatType}</beat-type>\n`;
+                                xml += '        </time>\n';
+                                xml += `        <clef>\n`;
+                                xml += `          <sign>${this.getClefSign()}</sign>\n`;
+                                xml += `          <line>${this.getClefLine()}</line>\n`;
+                                xml += '        </clef>\n';
+                                xml += '      </attributes>\n';
+                                xml += `      <direction placement="above">\n`;
+                                xml += `        <direction-type>\n`;
+                                xml += `          <metronome>\n`;
+                                xml += `            <beat-unit>quarter</beat-unit>\n`;
+                                xml += `            <per-minute>${tempo}</per-minute>\n`;
+                                xml += '          </metronome>\n';
+                                xml += '        </direction-type>\n';
+                                xml += '      </direction>\n';
+                            } else if (sectionIdx > 0 && m === 0) {
+                                // Key or time signature change
+                                const prevSection = this.sections[sectionIdx - 1];
+                                if (section.key !== prevSection.key || section.beats !== prevSection.beats || section.beatType !== prevSection.beatType) {
+                                    xml += '      <attributes>\n';
+                                    if (section.key !== prevSection.key) {
+                                        xml += `        <key>\n`;
+                                        xml += `          <fifths>${this.getKeyFifths(section.key)}</fifths>\n`;
+                                        xml += '        </key>\n';
+                                    }
+                                    if (section.beats !== prevSection.beats || section.beatType !== prevSection.beatType) {
+                                        xml += `        <time>\n`;
+                                        xml += `          <beats>${section.beats}</beats>\n`;
+                                        xml += `          <beat-type>${section.beatType}</beat-type>\n`;
+                                        xml += '        </time>\n';
+                                    }
+                                    xml += '      </attributes>\n';
+                                }
+                            }
+                            
+                            // Rehearsal mark
+                            xml += `      <direction placement="above">\n`;
+                            xml += `        <direction-type>\n`;
+                            xml += `          <rehearsal>${section.letter}</rehearsal>\n`;
+                            xml += '        </direction-type>\n';
+                            xml += '      </direction>\n';
+                            
+                            // Dynamics
+                            xml += `      <direction placement="below">\n`;
+                            xml += `        <direction-type>\n`;
+                            xml += `          <dynamics>\n`;
+                            xml += `            <${section.dynamics}/>\n`;
+                            xml += '          </dynamics>\n';
+                            xml += '        </direction-type>\n';
+                            xml += '      </direction>\n';
+                        }
+                        
+                        // Generate notes based on pattern and polyrhythm
+                        xml += this.generateMeasureNotes(section, m);
+                        
+                        xml += '    </measure>\n';
+                        measureNum++;
+                    }
+                });
+                
+                xml += '  </part>\n';
+                return xml;
+            }
+            
+            generateMeasureNotes(section, measureIdx) {
+                const scale = this.getScale(section.key);
+                const chordProgression = this.getChordProgression(section.key);
+                const currentChord = chordProgression[measureIdx % 4];
+                
+                if (section.polyrhythm !== 'none') {
+                    return this.generatePolyrhythmicNotes(section, scale, currentChord);
+                } else {
+                    return this.generatePatternNotes(section, scale, currentChord, measureIdx);
+                }
+            }
+            
+            generatePatternNotes(section, scale, chord, measureIdx) {
+                let xml = '';
+                const beatDuration = 4; // divisions per quarter note
+                const totalDivisions = section.beats * beatDuration;
+                
+                switch (section.pattern) {
+                    case 'chords':
+                        if (this.instrument.toLowerCase().includes('guitar')) {
+                            // Generate actual 3-note chords for guitar
+                            const chordNotes = this.getChordNotes(chord, section.key);
+                            for (let beat = 0; beat < section.beats; beat++) {
+                                chordNotes.forEach((note, idx) => {
+                                    xml += this.createNote(note.pitch, note.octave, note.alter, beatDuration, idx > 0);
+                                });
+                            }
+                        } else {
+                            // Other instruments play arpeggiated chord
+                            const chordNotes = this.getChordNotes(chord, section.key);
+                            for (let beat = 0; beat < section.beats; beat++) {
+                                const note = chordNotes[beat % 3];
+                                xml += this.createNote(note.pitch, note.octave, note.alter, beatDuration);
+                            }
+                        }
+                        break;
+                        
+                    case 'tremolo':
+                        // Rapid 16th notes with staccato
+                        for (let i = 0; i < totalDivisions; i++) {
+                            const note = scale[Math.floor(Math.random() * scale.length)];
+                            xml += this.createNote(note, this.getOctave(section.isLead), 0, 1, false, 'staccato');
+                        }
+                        break;
+                        
+                    case 'pizzicato':
+                        // Quarter notes with pizzicato marking
+                        for (let beat = 0; beat < section.beats; beat++) {
+                            const note = scale[Math.floor(Math.random() * scale.length)];
+                            xml += this.createNote(note, this.getOctave(section.isLead), 0, beatDuration, false, 'pizzicato');
+                        }
+                        break;
+                        
+                    case 'staccato':
+                        // Notes with staccato articulation
+                        for (let beat = 0; beat < section.beats; beat++) {
+                            const note = scale[Math.floor(Math.random() * scale.length)];
+                            xml += this.createNote(note, this.getOctave(section.isLead), 0, beatDuration, false, 'staccato');
+                        }
+                        break;
+                        
+                    case 'legato':
+                        // Notes with tenuto marks
+                        for (let beat = 0; beat < section.beats; beat++) {
+                            const note = scale[Math.floor(Math.random() * scale.length)];
+                            xml += this.createNote(note, this.getOctave(section.isLead), 0, beatDuration, false, 'tenuto');
+                        }
+                        break;
+                        
+                    case 'arpeggios':
+                        // Broken chord patterns
+                        const arpNotes = this.getChordNotes(chord, section.key);
+                        const arpPattern = [0, 1, 2, 1]; // Up and down pattern
+                        for (let beat = 0; beat < section.beats; beat++) {
+                            const note = arpNotes[arpPattern[beat % 4]];
+                            xml += this.createNote(note.pitch, note.octave, note.alter, beatDuration);
+                        }
+                        break;
+                        
+                    case 'bassline':
+                        // Root-fifth alternation
+                        const bassNotes = this.getChordNotes(chord, section.key);
+                        for (let beat = 0; beat < section.beats; beat++) {
+                            const note = bassNotes[beat % 2 === 0 ? 0 : 2]; // Root or fifth
+                            xml += this.createNote(note.pitch, note.octave - 1, note.alter, beatDuration);
+                        }
+                        break;
+                        
+                    case 'pedal':
+                        // Sustained whole note
+                        const pedalNote = chord[0];
+                        xml += this.createNote(pedalNote, this.getOctave(false), 0, totalDivisions);
+                        break;
+                        
+                    case 'melody':
+                    case 'harmony':
+                    default:
+                        // Melodic or harmonic lines
+                        for (let beat = 0; beat < section.beats; beat++) {
+                            const note = section.isLead 
+                                ? scale[Math.floor(Math.random() * scale.length)]
+                                : chord[Math.floor(Math.random() * 3)];
+                            xml += this.createNote(note, this.getOctave(section.isLead), 0, beatDuration);
+                        }
+                }
+                
+                return xml;
+            }
+            
+            generatePolyrhythmicNotes(section, scale, chord) {
+                let xml = '';
+                const [polyNum, polyBase] = section.polyrhythm.split(':').map(Number);
+                const beatDuration = 4; // divisions per quarter note
+                const polyDuration = (polyBase * beatDuration) / polyNum;
+                const totalBeats = section.beats;
+                const groupsPerMeasure = Math.floor((totalBeats * beatDuration) / (polyBase * beatDuration));
+                const notesGenerated = groupsPerMeasure * polyNum;
+                const remainingDivisions = (totalBeats * beatDuration) - (groupsPerMeasure * polyBase * beatDuration);
+                
+                // Generate polyrhythmic groups
+                for (let group = 0; group < groupsPerMeasure; group++) {
+                    for (let n = 0; n < polyNum; n++) {
+                        const note = scale[Math.floor(Math.random() * scale.length)];
+                        const isFirstInGroup = n === 0;
+                        const isLastInGroup = n === polyNum - 1;
+                        
+                        xml += '      <note>\n';
+                        xml += '        <pitch>\n';
+                        xml += `          <step>${note}</step>\n`;
+                        xml += `          <octave>${this.getOctave(section.isLead)}</octave>\n`;
+                        xml += '        </pitch>\n';
+                        xml += `        <duration>${Math.round(polyDuration)}</duration>\n`;
+                        xml += '        <type>eighth</type>\n';
+                        xml += '        <time-modification>\n';
+                        xml += `          <actual-notes>${polyNum}</actual-notes>\n`;
+                        xml += `          <normal-notes>${polyBase}</normal-notes>\n`;
+                        xml += '        </time-modification>\n';
+                        
+                        if (isFirstInGroup) {
+                            xml += `        <notations>\n`;
+                            xml += `          <tuplet type="start" bracket="yes" number="1">\n`;
+                            xml += `            <tuplet-actual>\n`;
+                            xml += `              <tuplet-number>${polyNum}</tuplet-number>\n`;
+                            xml += '            </tuplet-actual>\n';
+                            xml += `            <tuplet-normal>\n`;
+                            xml += `              <tuplet-number>${polyBase}</tuplet-number>\n`;
+                            xml += '            </tuplet-normal>\n';
+                            xml += '          </tuplet>\n';
+                            xml += '        </notations>\n';
+                        } else if (isLastInGroup) {
+                            xml += `        <notations>\n`;
+                            xml += `          <tuplet type="stop" number="1"/>\n`;
+                            xml += '        </notations>\n';
+                        }
+                        
+                        xml += '      </note>\n';
+                    }
+                }
+                
+                // Fill remaining beats with regular notes
+                if (remainingDivisions > 0) {
+                    const note = scale[Math.floor(Math.random() * scale.length)];
+                    xml += this.createNote(note, this.getOctave(section.isLead), 0, remainingDivisions);
+                }
+                
+                return xml;
+            }
+            
+            createNote(pitch, octave, alter, duration, isChord = false, articulation = null) {
+                let xml = '      <note>\n';
+                if (isChord) {
+                    xml += '        <chord/>\n';
+                }
+                xml += '        <pitch>\n';
+                xml += `          <step>${pitch}</step>\n`;
+                if (alter !== 0) {
+                    xml += `          <alter>${alter}</alter>\n`;
+                }
+                xml += `          <octave>${octave}</octave>\n`;
+                xml += '        </pitch>\n';
+                xml += `        <duration>${duration}</duration>\n`;
+                xml += `        <type>${this.getDurationType(duration)}</type>\n`;
+                
+                if (articulation) {
+                    xml += '        <notations>\n';
+                    if (articulation === 'staccato') {
+                        xml += '          <articulations>\n';
+                        xml += '            <staccato/>\n';
+                        xml += '          </articulations>\n';
+                    } else if (articulation === 'tenuto') {
+                        xml += '          <articulations>\n';
+                        xml += '            <tenuto/>\n';
+                        xml += '          </articulations>\n';
+                    } else if (articulation === 'pizzicato') {
+                        xml += '          <technical>\n';
+                        xml += '            <pizzicato/>\n';
+                        xml += '          </technical>\n';
+                    }
+                    xml += '        </notations>\n';
+                }
+                
+                xml += '      </note>\n';
+                return xml;
+            }
+            
+            getDurationType(duration) {
+                if (duration >= 16) return 'whole';
+                if (duration >= 8) return 'half';
+                if (duration >= 4) return 'quarter';
+                if (duration >= 2) return 'eighth';
+                return 'sixteenth';
+            }
+            
+            getScale(key) {
+                const scales = {
+                    'C': ['C', 'D', 'E', 'F', 'G', 'A', 'B'],
+                    'G': ['G', 'A', 'B', 'C', 'D', 'E', 'F'],
+                    'D': ['D', 'E', 'F', 'G', 'A', 'B', 'C'],
+                    'A': ['A', 'B', 'C', 'D', 'E', 'F', 'G'],
+                    'F': ['F', 'G', 'A', 'B', 'C', 'D', 'E'],
+                    'Bb': ['B', 'C', 'D', 'E', 'F', 'G', 'A'],
+                    'Eb': ['E', 'F', 'G', 'A', 'B', 'C', 'D'],
+                    'Am': ['A', 'B', 'C', 'D', 'E', 'F', 'G'],
+                    'Em': ['E', 'F', 'G', 'A', 'B', 'C', 'D'],
+                    'Dm': ['D', 'E', 'F', 'G', 'A', 'B', 'C']
+                };
+                return scales[key] || scales['C'];
+            }
+            
+            getChordProgression(key) {
+                const progressions = {
+                    'C': [['C', 'E', 'G'], ['F', 'A', 'C'], ['G', 'B', 'D'], ['A', 'C', 'E']],
+                    'G': [['G', 'B', 'D'], ['C', 'E', 'G'], ['D', 'F', 'A'], ['E', 'G', 'B']],
+                    'D': [['D', 'F', 'A'], ['G', 'B', 'D'], ['A', 'C', 'E'], ['B', 'D', 'F']],
+                    'A': [['A', 'C', 'E'], ['D', 'F', 'A'], ['E', 'G', 'B'], ['F', 'A', 'C']],
+                    'F': [['F', 'A', 'C'], ['B', 'D', 'F'], ['C', 'E', 'G'], ['D', 'F', 'A']],
+                    'Bb': [['B', 'D', 'F'], ['E', 'G', 'B'], ['F', 'A', 'C'], ['G', 'B', 'D']],
+                    'Eb': [['E', 'G', 'B'], ['A', 'C', 'E'], ['B', 'D', 'F'], ['C', 'E', 'G']],
+                    'Am': [['A', 'C', 'E'], ['D', 'F', 'A'], ['E', 'G', 'B'], ['F', 'A', 'C']],
+                    'Em': [['E', 'G', 'B'], ['A', 'C', 'E'], ['B', 'D', 'F'], ['C', 'E', 'G']],
+                    'Dm': [['D', 'F', 'A'], ['G', 'B', 'D'], ['A', 'C', 'E'], ['B', 'D', 'F']]
+                };
+                return progressions[key] || progressions['C'];
+            }
+            
+            getChordNotes(chordPitches, key) {
+                // Convert chord pitches to proper note objects with octave and alterations
+                const keyAlterations = this.getKeyAlterations(key);
+                return chordPitches.map((pitch, idx) => {
+                    const alter = keyAlterations[pitch] || 0;
+                    const octave = this.instrument.toLowerCase().includes('cello') ? 3 : 
+                                  this.instrument.toLowerCase().includes('guitar') ? 3 :
+                                  this.instrument.toLowerCase().includes('viola') ? 4 : 4;
+                    return { pitch, octave: octave + (idx > 1 ? 1 : 0), alter };
+                });
+            }
+            
+            getKeyAlterations(key) {
+                const alterations = {
+                    'G': { 'F': 1 },
+                    'D': { 'F': 1, 'C': 1 },
+                    'A': { 'F': 1, 'C': 1, 'G': 1 },
+                    'F': { 'B': -1 },
+                    'Bb': { 'B': -1, 'E': -1 },
+                    'Eb': { 'B': -1, 'E': -1, 'A': -1 }
+                };
+                return alterations[key] || {};
+            }
+            
+            getKeyFifths(key) {
+                const fifths = {
+                    'C': 0, 'G': 1, 'D': 2, 'A': 3, 'F': -1, 'Bb': -2, 'Eb': -3,
+                    'Am': 0, 'Em': 1, 'Dm': -1
+                };
+                return fifths[key] || 0;
+            }
+            
+            getOctave(isLead) {
+                if (this.instrument.toLowerCase().includes('violin')) {
+                    return isLead ? 5 : 4;
+                } else if (this.instrument.toLowerCase().includes('viola')) {
+                    return isLead ? 4 : 3;
+                } else if (this.instrument.toLowerCase().includes('cello')) {
+                    return isLead ? 3 : 2;
+                } else if (this.instrument.toLowerCase().includes('guitar')) {
+                    return isLead ? 4 : 3;
+                }
+                return 4;
+            }
+            
+            getClefSign() {
+                if (this.instrument.toLowerCase().includes('cello')) return 'F';
+                if (this.instrument.toLowerCase().includes('viola')) return 'C';
+                return 'G';
+            }
+            
+            getClefLine() {
+                if (this.instrument.toLowerCase().includes('cello')) return '4';
+                if (this.instrument.toLowerCase().includes('viola')) return '3';
+                return '2';
+            }
+        }
+
+        function exportMusicXML() {
+            if (!generatedXML) {
+                showStatus('Please generate a composition first!', 'error');
+                return;
+            }
+            
+            // Create unique filename with timestamp
+            const title = document.getElementById('title').value.replace(/\s+/g, '-').toLowerCase();
+            const now = new Date();
+            const timestamp = now.getFullYear() + 
+                             String(now.getMonth() + 1).padStart(2, '0') +
+                             String(now.getDate()).padStart(2, '0') + '-' +
+                             String(now.getHours()).padStart(2, '0') +
+                             String(now.getMinutes()).padStart(2, '0') +
+                             String(now.getSeconds()).padStart(2, '0');
+            const filename = `${title}-v9.1-${timestamp}.musicxml`;
+            
+            const blob = new Blob([generatedXML], { type: 'application/vnd.recordare.musicxml+xml' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showStatus(`✅ Exported as ${filename}`, 'success');
+        }
+
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+            
+            setTimeout(() => {
+                status.textContent = '';
+                status.className = 'status';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
